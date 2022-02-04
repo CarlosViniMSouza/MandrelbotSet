@@ -43,7 +43,7 @@ Os fractais são padrões que se **repetem infinitamente** em diferentes escalas
 
 Formalmente, o conjunto de Mandelbrot é o conjunto de números complexos, _c_, para os quais uma sequência infinita de números, _z0, z1, …, zn, …,_ permanece [limitada](https://en.wikipedia.org/wiki/Bounded_function). Em outras palavras, existe um limite que a magnitude de cada número complexo nessa sequência nunca excede. A sequência de Mandelbrot é dada pela seguinte fórmula recursiva:
 
-![linear_system_num1](https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/latex_mandelbrot.95af84d59784.png&w=825&sig=76fd043318d344bd0c1a04d1b4d08579192d8a8e)
+![linear_system_num1](../images/linear_system_num1.webp)
 
 Em linguagem simples, para decidir se algum número complexo, _c_, pertence ao conjunto de Mandelbrot, você deve inserir esse número na fórmula acima. De agora em diante, o número c permanecerá constante enquanto você itera a sequência. O primeiro elemento da sequência, _z0_, é sempre igual a zero. Para calcular o próximo elemento, _z(n+1)_,
 você continuará **elevando** ao quadrado o último elemento, _z(n)_, e **adicionando** seu número inicial, _c_, em um loop de feedback.
