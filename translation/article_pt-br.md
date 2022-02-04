@@ -22,7 +22,7 @@ Antes de tentar desenhar o fractal, será útil entender o que o conjunto de Man
 
 Mesmo que o nome seja novo para você, você pode ter visto algumas visualizações fascinantes do conjunto de Mandelbrot antes. É um conjunto de **números complexos**, cuja fronteira forma um padrão distinto e intrincado quando representado no [plano complexo](https://en.wikipedia.org/wiki/Complex_plane). Esse padrão tornou-se indiscutivelmente o [fractal](https://en.wikipedia.org/wiki/Fractal) mais famoso, dando origem à **geometria fractal** no final do século 20:
 
-![fractal_num1](https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/wikimedia_Mandel_zoom_00_mandelbrot_set.54d99530ad68.jpg&w=1280&sig=2c78a0e4f66e60244225e76f5ff1793712e3bbc2)
+![fractal_num1](https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Mandelbrot_set_5000px.png/750px-Mandelbrot_set_5000px.png)
 
 <p align="center">
   Mandelbrot Set (Source: Wikimedia, Created by Wolfgang Beyer, CC BY-SA 3.0)
@@ -38,3 +38,12 @@ Os fractais são padrões que se **repetem infinitamente** em diferentes escalas
 <p align="center">
   Fractal Structure of a Romanesco Cauliflower
 </p>
+
+## O limite da estabilidade iterativa
+
+Formalmente, o conjunto de Mandelbrot é o conjunto de números complexos, _c_, para os quais uma sequência infinita de números, _z0, z1, …, zn, …,_ permanece [limitada](https://en.wikipedia.org/wiki/Bounded_function). Em outras palavras, existe um limite que a magnitude de cada número complexo nessa sequência nunca excede. A sequência de Mandelbrot é dada pela seguinte fórmula recursiva:
+
+![linear_system_num1](https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/latex_mandelbrot.95af84d59784.png&w=825&sig=76fd043318d344bd0c1a04d1b4d08579192d8a8e)
+
+Em linguagem simples, para decidir se algum número complexo, _c_, pertence ao conjunto de Mandelbrot, você deve inserir esse número na fórmula acima. De agora em diante, o número c permanecerá constante enquanto você itera a sequência. O primeiro elemento da sequência, _z0_, é sempre igual a zero. Para calcular o próximo elemento, _z(n+1)_,
+você continuará **elevando** ao quadrado o último elemento, _z(n)_, e **adicionando** seu número inicial, _c_, em um loop de feedback.
