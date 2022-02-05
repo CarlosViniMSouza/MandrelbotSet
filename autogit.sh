@@ -1,4 +1,4 @@
 git add -A
-git commit -m "The Map of Julia Sets -> table & code -> added | checking others problems"
+git commit -m "Next Topic: Plotting the Mandelbrot Set Using Python Matplotlib"
 git push
 git status

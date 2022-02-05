@@ -243,3 +243,41 @@ def sequence(c, z=0):
 print(sequence(c=4, z=0))
 # Output: <generator object sequence at 0x000001F498FE5FC0>
 ```
+
+Graças ao [valor do argumento padrão](https://realpython.com/python-optional-arguments/) na linha destacada, você ainda pode usar esta função como antes porque _z_ é opcional. Ao mesmo tempo, você pode alterar o ponto inicial da sequência. Talvez você tenha uma ideia melhor depois de definir as funções de wrapper para os conjuntos Mandelbrot e Julia:
+
+```python
+def mandelbrot(candidate):
+    return sequence(z=0, c=candidate)
+
+def julia(candidate, parameter):
+    return sequence(z=candidate, c=parameter)
+```
+
+Cada função retorna um objeto gerador ajustado para sua condição inicial desejada. Os princípios para determinar se um valor candidato pertence a um conjunto de Julia são semelhantes ao conjunto de Mandelbrot que você viu anteriormente. Em poucas palavras, você deve iterar a sequência e observar seu comportamento ao longo do tempo.
+
+Benoît Mandelbrot foi, de fato, estudar Julia define em sua pesquisa científica. Ele estava particularmente interessado em encontrar os valores de c que produzem os chamados conjuntos de Julia [conectados](https://en.wikipedia.org/wiki/Connected_space) em oposição aos seus homólogos desconectados. Estes últimos são conhecidos como [conjuntos de Fatou](https://en.wikipedia.org/wiki/Fatou_set) e aparecem como poeira composta por um número infinito de peças quando visualizadas no plano complexo:
+
+![fractal_num4](https://files.realpython.com/media/plot_julia_fatou.e0eee824ae2d.png)
+
+<p align="center">
+  Connected Julia Set vs Fatou Dust
+</p>
+
+A imagem no canto superior esquerdo representa um conjunto de Julia conectado derivado de _c_ = 0,25, que pertence ao conjunto de Mandelbrot. Você sabe que inserir um membro do conjunto de Mandelbrot na fórmula recursiva produzirá uma sequência de números complexos que convergem. Os números convergem para 0,5 neste caso. Contudo, uma pequena mudança em c pode de repente transformar seu conjunto de Julia em poeira desconectada e fazer a sequência correspondente divergir para o infinito.
+
+Coincidentemente, os conjuntos de Julia conectados correspondem a valores de c que geram sequências estáveis ​​da fórmula recursiva acima. Assim, pode-se dizer que Benoît Mandelbrot estava procurando o **limite da estabilidade iterativa**, ou um mapa de todos os conjuntos de Julia que mostrasse onde esses conjuntos estão conectados e onde são poeira.
+
+Veja como a escolha de diferentes pontos para o parâmetro c no plano complexo afeta o conjunto de Julia resultante:
+
+![fractal_num5](../images/fractal_num5.jpg)
+
+<p align="center">
+  It's a GIF; but i can't insert here!
+</p>
+
+O pequeno círculo vermelho em movimento indica o valor de _c_. Enquanto permanecer dentro do conjunto de Mandelbrot mostrado à esquerda, o conjunto de Julia correspondente representado à direita permanece conectado. Caso contrário, o conjunto de Julia estoura como uma bolha se espalhando em infinitas peças empoeiradas.
+
+Você notou como os conjuntos de Julia estão mudando de forma? Acontece que um determinado conjunto de Julia compartilha características visuais comuns com a área específica do conjunto de Mandelbrot usado para semear o valor de _c_. Quando você olha através de uma lupa, ambos os fractais parecerão um pouco semelhantes.
+
+Ok, chega de teoria. Hora de traçar seu primeiro conjunto de Mandelbrot!
