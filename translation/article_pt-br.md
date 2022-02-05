@@ -270,7 +270,7 @@ Coincidentemente, os conjuntos de Julia conectados correspondem a valores de c q
 
 Veja como a escolha de diferentes pontos para o parâmetro c no plano complexo afeta o conjunto de Julia resultante:
 
-![fractal_num5](../images/fractal_num5.jpg)
+![fractal_num5](https://github.com/CarlosViniMSouza/MandrelbotSet/blob/master/images/fractal_num5.jpg)
 
 <p align="center">
   It's a GIF; but i can't insert here!

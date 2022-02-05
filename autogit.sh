@@ -1,4 +1,4 @@
 git add -A
-git commit -m "Next Topic: Plotting the Mandelbrot Set Using Python Matplotlib"
+git commit -m "alt link to fractal_num5 img"
 git push
 git status
