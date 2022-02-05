@@ -133,7 +133,7 @@ A maioria dos números fará essa sequência divergir ao infinito. No entanto, a
 Por exemplo, conectar _c_ = 1 faz a sequência crescer sem limites como você acabou de aprender, mas _c_ = -1 faz com que ela salte entre 0 e -1 repetidamente, enquanto _c_ = 0 fornece uma sequência composta por um único valor:
 
 | Element	| c = -1 | c = 0	|               c = 1 |
-|-------------------------------------------------|
+|---------|--------|--------|---------------------|
 |   z0	  |   0	   |   0	  |                 0   |
 |   z1	  |   -1   |   0	  |                 1   |
 |   z2	  |   0	   |   0	  |                 2   |
@@ -150,3 +150,10 @@ Não é óbvio quais números são estáveis ​​e quais não são, porque a f
 <p align="center">
   Depiction of the Mandelbrot Set on the Complex Plane
 </p>
+
+Esta imagem foi gerada executando a fórmula recursiva até vinte vezes por pixel, com cada pixel representando algum valor c. Quando a [magnitude](https://en.wikipedia.org/wiki/Magnitude_(mathematics)) do número complexo resultante ainda era razoavelmente pequena após todas as iterações, o pixel correspondente era colorido em preto. No entanto, assim que a magnitude excedeu o raio de dois,
+então a iteração parou e pulou o pixel atual.
+
+> **Curiosidade**: O fractal correspondente ao conjunto de Mandelbrot tem uma **área** finita estimada em 1,506484 unidades quadradas. Os matemáticos ainda não identificaram o número exato e não sabem se é racional ou não. Por outro lado, o **perímetro** do conjunto de Mandelbrot é infinito. Confira o **paradoxo do litoral** para aprender sobre um paralelo interessante desse fato estranho na vida real.
+
+Você pode achar surpreendente que uma fórmula relativamente simples que envolve apenas adição e multiplicação possa produzir uma estrutura tão elaborada. Mas isso não é tudo. Acontece que você pode pegar a mesma fórmula e usá-la para gerar infinitos fractais únicos! Você quer ver como?
