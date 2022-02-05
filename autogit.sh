@@ -1,4 +1,4 @@
 git add -A
-git commit -m "table on line 135 -> fixed | Next Topic: The Map of Julia Sets"
+git commit -m "The Map of Julia Sets -> table & code -> added | checking others problems"
 git push
 git status

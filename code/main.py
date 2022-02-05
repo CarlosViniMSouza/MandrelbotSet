@@ -53,3 +53,14 @@ z(7) = 210066388901
 z(8) = 44127887745906175987802
 z(9) = 1947270476915296449559703445493848930452791205
 """
+
+
+def sequence(c, z=0):
+    while True:
+        yield z
+        z = z ** 2 + c
+        return z
+
+
+print(sequence(c=4, z=0))
+# Output: <generator object sequence at 0x000001F498FE5FC0>

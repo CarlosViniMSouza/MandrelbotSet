@@ -132,16 +132,58 @@ A maioria dos números fará essa sequência divergir ao infinito. No entanto, a
 
 Por exemplo, conectar _c_ = 1 faz a sequência crescer sem limites como você acabou de aprender, mas _c_ = -1 faz com que ela salte entre 0 e -1 repetidamente, enquanto _c_ = 0 fornece uma sequência composta por um único valor:
 
-| Element	| c = -1 | c = 0	|               c = 1 |
-|---------|--------|--------|---------------------|
-|   z0	  |   0	   |   0	  |                 0   |
-|   z1	  |   -1   |   0	  |                 1   |
-|   z2	  |   0	   |   0	  |                 2   |
-|   z3	  |   -1	 |   0	  |                 5   |
-|   z4	  |   0	   |   0	  |                26   |
-|   z5	  |   0	   |   0	  |               677   |
-|   z6	  |   -1   |   0	  |           458,330   |
-|   z7	  |   0	   |   0	  |   210,066,388,901   |
+<p align="center">
+  <table>
+    <tr>
+      <td>Element</td>
+      <td>c = -1</td>
+      <td>c = 0</td>
+      <td>c = 1</td>
+    </tr>
+    <tr>
+      <td>z0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>z2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>z3</td>
+      <td> -1 </td>
+      <td>0</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>z4</td>
+      <td>0</td>
+      <td>0</td>
+      <td>26</td>
+    </tr>
+    <tr>
+      <td>z5</td>
+      <td> -1 </td>
+      <td>0</td>
+      <td>677</td>
+    </tr>
+    <tr>
+      <td>z6</td>
+      <td> -1 </td>
+      <td>0</td>
+      <td>458,330</td>
+    </tr>
+    <tr>
+      <td>z7</td>
+      <td>0</td>
+      <td>0</td>
+      <td>210,066,388,901</td>
+    </tr>
+  </table>
+</p>
 
 Não é óbvio quais números são estáveis ​​e quais não são, porque a fórmula é sensível até mesmo à menor mudança do valor testado, _c_. Se você marcar os números estáveis ​​no plano complexo, verá o seguinte padrão surgir:
 
@@ -157,3 +199,47 @@ então a iteração parou e pulou o pixel atual.
 > **Curiosidade**: O fractal correspondente ao conjunto de Mandelbrot tem uma **área** finita estimada em 1,506484 unidades quadradas. Os matemáticos ainda não identificaram o número exato e não sabem se é racional ou não. Por outro lado, o **perímetro** do conjunto de Mandelbrot é infinito. Confira o **paradoxo do litoral** para aprender sobre um paralelo interessante desse fato estranho na vida real.
 
 Você pode achar surpreendente que uma fórmula relativamente simples que envolve apenas adição e multiplicação possa produzir uma estrutura tão elaborada. Mas isso não é tudo. Acontece que você pode pegar a mesma fórmula e usá-la para gerar infinitos fractais únicos! Você quer ver como?
+
+# O Mapa dos Conjuntos de Julia
+
+É difícil falar sobre o conjunto de Mandelbrot sem mencionar os conjuntos de Julia, que foram descobertos pelo matemático francês [Gaston Julia](https://en.wikipedia.org/wiki/Gaston_Julia) várias décadas antes sem a ajuda de computadores. Os conjuntos de Julia e o conjunto de Mandelbrot estão intimamente relacionados porque você pode obtê-los através da mesma fórmula recursiva, apenas com diferentes conjuntos de condições de partida.
+
+Embora haja apenas um conjunto de Mandelbrot, existem infinitos conjuntos de Julia. Até agora, você sempre iniciou a sequência em _z0_ = 0 e testou sistematicamente algum número complexo arbitrário, _c_, quanto à sua pertinência. Por outro lado, para descobrir se um número pertence a um conjunto de Julia, você deve usar esse número como ponto de partida para a sequência e escolher outro valor para o parâmetro c.
+
+Aqui está uma comparação rápida dos termos da fórmula, dependendo de qual conjunto você está investigando:
+
+<p align="center">
+  <table>
+    <tr>
+      <td>Termo</td>
+      <td>Conjunto Mandrelbot</td>
+      <td>Conjunto Julia</td>
+    </tr>
+    <tr>
+      <td>z0</td>
+      <td>0</td>
+      <td>Valor do Candidato</td>
+    </tr>
+    <tr>
+      <td>c</td>
+      <td>Valor do Candidato</td>
+      <td>Constante Fixa</td>
+    </tr>
+  </table>
+</p>
+
+No primeiro caso, c representa um membro potencial do conjunto de Mandelbrot e é o único valor de entrada necessário porque _z0_ permanece fixo em zero. No entanto, cada termo muda seu significado quando você usa a fórmula no modo Julia. Agora, _c_ funciona como um parâmetro que determina a forma e a forma de um conjunto de Julia inteiro, enquanto _z0_ se torna seu ponto de interesse. Ao contrário de antes, a fórmula para um conjunto de Julia espera não um, mas dois valores de entrada.
+
+Você pode modificar uma de suas funções definidas antes para torná-la mais genérica. Dessa forma, você pode criar sequências infinitas começando em qualquer ponto em vez de sempre zero:
+
+```python
+def sequence(c, z=0):
+    while True:
+        yield z
+        z = z ** 2 + c
+        return z
+
+
+print(sequence(c=4, z=0))
+# Output: <generator object sequence at 0x000001F498FE5FC0>
+```
