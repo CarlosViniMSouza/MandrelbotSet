@@ -89,3 +89,64 @@ z(8) = 44127887745906175987802
 z(9) = 1947270476915296449559703445493848930452791205
 """
 ```
+
+Observe a rápida taxa de crescimento desses elementos de sequência. Ela diz algo sobre a pertinência de _c_ = 1. Especificamente, ela não pertence ao conjunto de Mandelbrot, porque a sequência correspondente cresce sem limites.
+
+Às vezes, uma abordagem **iterativa** pode ser mais eficiente do que uma recursiva. Aqui está uma função equivalente que cria uma sequência infinita para o valor de entrada especificado, _c_:
+
+```python
+def sequence(c):
+    z = 0
+    while True:
+        yield z
+        z = z ** 2 + c
+```
+
+A função `sequence()` retorna um [objeto gerador](https://realpython.com/introduction-to-python-generators/) gerando elementos consecutivos da sequência infinitamente em um loop. Como ele não retorna os índices dos elementos correspondentes, você pode [enumerá-los](https://realpython.com/python-enumerate/) e parar o loop após um determinado número de iterações:
+
+```python
+for n, z in enumerate(sequence(c=1)):
+    print(f"z({n}) = {z}")
+    if n >= 9:
+        break
+
+"""
+Output:
+
+z(0) = 0
+z(1) = 1
+z(2) = 2
+z(3) = 5
+z(4) = 26
+z(5) = 677
+z(6) = 458330
+z(7) = 210066388901
+z(8) = 44127887745906175987802
+z(9) = 1947270476915296449559703445493848930452791205
+"""
+```
+
+O resultado é o mesmo de antes, mas a função do gerador permite calcular os elementos de sequência de forma mais eficiente usando a [avaliação lenta](https://en.wikipedia.org/wiki/Lazy_evaluation). Além disso, a iteração elimina chamadas de função redundantes para os elementos de sequência já calculados. Como consequência, você não corre mais o risco de atingir o [limite máximo de recursão](https://realpython.com/python-recursion/#recursion-in-python).
+
+A maioria dos números fará essa sequência divergir ao infinito. No entanto, alguns a manterão **estável** convergindo a sequência para um único valor ou permanecendo dentro de um intervalo limitado. Outros tornarão a sequência **periodicamente estável**, alternando entre os mesmos poucos valores. Valores estáveis ​​e periodicamente estáveis ​​compõem o conjunto de Mandelbrot.
+
+Por exemplo, conectar _c_ = 1 faz a sequência crescer sem limites como você acabou de aprender, mas _c_ = -1 faz com que ela salte entre 0 e -1 repetidamente, enquanto _c_ = 0 fornece uma sequência composta por um único valor:
+
+| Element	| c = -1 | c = 0	|               c = 1 |
+|-------------------------------------------------|
+|   z0	  |   0	   |   0	  |                 0   |
+|   z1	  |   -1   |   0	  |                 1   |
+|   z2	  |   0	   |   0	  |                 2   |
+|   z3	  |   -1	 |   0	  |                 5   |
+|   z4	  |   0	   |   0	  |                26   |
+|   z5	  |   0	   |   0	  |               677   |
+|   z6	  |   -1   |   0	  |           458,330   |
+|   z7	  |   0	   |   0	  |   210,066,388,901   |
+
+Não é óbvio quais números são estáveis ​​e quais não são, porque a fórmula é sensível até mesmo à menor mudança do valor testado, _c_. Se você marcar os números estáveis ​​no plano complexo, verá o seguinte padrão surgir:
+
+![fractal_num3](https://files.realpython.com/media/plot_mandelbrot_with_circle.ad8b99d3ee01.png)
+
+<p align="center">
+  Depiction of the Mandelbrot Set on the Complex Plane
+</p>
