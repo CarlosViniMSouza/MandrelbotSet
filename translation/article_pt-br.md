@@ -281,3 +281,48 @@ O pequeno círculo vermelho em movimento indica o valor de _c_. Enquanto permane
 Você notou como os conjuntos de Julia estão mudando de forma? Acontece que um determinado conjunto de Julia compartilha características visuais comuns com a área específica do conjunto de Mandelbrot usado para semear o valor de _c_. Quando você olha através de uma lupa, ambos os fractais parecerão um pouco semelhantes.
 
 Ok, chega de teoria. Hora de traçar seu primeiro conjunto de Mandelbrot!
+
+# Traçando o conjunto de Mandelbrot usando o Matplotlib do Python
+
+Há muitas maneiras de visualizar o conjunto de Mandelbrot em Python. Se você estiver confortável com [NumPy](https://realpython.com/numpy-tutorial/) e [Matplotlib](https://realpython.com/python-matplotlib-guide/), essas duas bibliotecas juntas fornecerão uma das maneiras mais diretas de plotar o fractal. Eles convenientemente poupam você de ter que converter entre o mundo e as coordenadas de pixel.
+
+> **Nota**: As coordenadas mundiais correspondem ao espectro contínuo de números no plano complexo, estendendo-se até o infinito. Por outro lado, as coordenadas de pixel são discretas e limitadas pelo tamanho finito da tela. 
+
+Para gerar o conjunto inicial de **valores candidatos**, você pode aproveitar [np.linspace()](https://realpython.com/np-linspace-numpy/), que cria números uniformemente espaçados em um determinado intervalo:
+
+```python
+import numpy as np
+
+def complex_matrix(xmin, xmax, ymin, ymax, pixel_density):
+    re = np.linspace(xmin, xmax, int((xmax - xmin) * pixel_density))
+    im = np.linspace(ymin, ymax, int((ymax - ymin) * pixel_density))
+    return re[np.newaxis, :] + im[:, np.newaxis] * 1j
+```
+
+A função acima retornará um array bidimensional de números complexos dentro de uma área retangular dada por quatro parâmetros. Os parâmetros xmin e xmax especificam os limites na direção horizontal, enquanto `ymin` e `ymax` o fazem na direção vertical. O quinto parâmetro, `pixel_density`, determina o número desejado de pixels por unidade.
+
+Agora, você pode pegar essa [matriz](https://en.wikipedia.org/wiki/Matrix_(mathematics)) de números complexos e executá-la pela conhecida fórmula recursiva para ver quais números permanecem estáveis ​​e quais não. Graças à [vetorização](https://realpython.com/numpy-array-programming/#what-is-vectorization) do NumPy, você pode passar a matriz como um único parâmetro, _c_, e realizar os cálculos em cada elemento sem precisar escrever loops explícitos:
+
+```python
+def is_stable(c, num_iterations):
+    z = 0
+    for _ in range(num_iterations):
+        z = z ** 2 + c
+    return abs(z) <= 2
+```
+
+O código na linha destacada é executado para _todos_ os elementos da matriz _c_ em cada iteração. Como _z_ e _c_ começam com dimensões diferentes inicialmente, o NumPy usa a [transmissão](https://realpython.com/numpy-array-programming/#broadcasting) para estender habilmente a primeira, de modo que ambos acabem tendo formas compatíveis. Finalmente, a função cria uma [máscara](https://realpython.com/numpy-tutorial/#masking-and-filtering) bidimensional de valores booleanos sobre a matriz resultante, _z_. Cada valor corresponde à estabilidade da sequência naquele ponto.
+
+> **Nota**: Para aproveitar a computação vetorizada, o loop no exemplo de código continua elevando ao quadrado e adicionando números incondicionalmente, independentemente de quão grandes eles já fossem. Isso não é ideal porque, em muitos casos, os números divergem para o infinito logo no início, tornando a maioria dos cálculos um desperdício.
+>
+> Além disso, os números que crescem rapidamente geralmente levam a um erro de estouro. O NumPy detecta esses estouros e emite um aviso no fluxo de erro padrão (stderr). Se você deseja suprimir esses avisos, pode definir um filtro relevante antes de chamar sua função:
+>
+> ```python
+> import numpy as np
+>
+> np.warnings.filterwarnings("ignore")
+> ```
+>
+> Ignorar esses estouros é inofensivo porque você não está interessado em magnitudes específicas, mas sim se elas se encaixam no limite determinado.
+
+Após um número escolhido de iterações, a magnitude de cada número complexo na matriz permanecerá dentro ou excederá o limite de dois. Aqueles que são pequenos o suficiente são provavelmente membros do conjunto de Mandelbrot. Agora você pode visualizá-los usando o Matplotlib.

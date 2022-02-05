@@ -1,4 +1,4 @@
 git add -A
-git commit -m "alt link to fractal_num5 img"
+git commit -m "Next Topic: Low-Resolution Scatter Plot"
 git push
 git status
