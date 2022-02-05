@@ -326,3 +326,47 @@ O código na linha destacada é executado para _todos_ os elementos da matriz _c
 > Ignorar esses estouros é inofensivo porque você não está interessado em magnitudes específicas, mas sim se elas se encaixam no limite determinado.
 
 Após um número escolhido de iterações, a magnitude de cada número complexo na matriz permanecerá dentro ou excederá o limite de dois. Aqueles que são pequenos o suficiente são provavelmente membros do conjunto de Mandelbrot. Agora você pode visualizá-los usando o Matplotlib.
+
+# Gráfico de dispersão de baixa resolução
+
+Uma maneira rápida e suja de visualizar o conjunto de Mandelbrot é através de um [gráfico de dispersão](https://realpython.com/visualizing-python-plt-scatter/), que ilustra as relações entre variáveis ​​emparelhadas. Como os números complexos são pares de componentes **reais** e **imaginários**, você pode desembaraçá-los em matrizes separadas que funcionarão bem com o gráfico de dispersão.
+
+Mas primeiro, você precisa transformar sua máscara booleana de estabilidade nos números complexos iniciais que semearam a sequência. Você pode fazer isso com a ajuda da **filtragem mascarada** do NumPy:
+
+```python
+def get_members(c, num_iterations):
+    mask = is_stable(c, num_iterations)
+    return c[mask]
+```
+
+Essa função retornará uma matriz unidimensional composta apenas pelos números complexos que são estáveis ​​e, portanto, pertencem ao conjunto de Mandelbrot. Ao combinar as funções definidas até agora, você poderá mostrar um gráfico de dispersão usando o Matplotlib. Não se esqueça de adicionar a instrução de importação necessária no início do seu arquivo:
+
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+
+np.warnings.filterwarnings("ignore")
+```
+
+Isso traz a interface de plotagem para seu namespace atual. Agora você pode calcular seus dados e plotá-los:
+
+```python
+c = complex_matrix(-2, 0.5, -1.5, 1.5, pixel_density=21)
+members = get_members(c, num_iterations=20)
+
+plt.scatter(members.real, members.imag, color="black", marker=",", s=1)
+plt.gca().set_aspect("equal")
+plt.axis("off")
+plt.tight_layout()
+plt.show()
+```
+
+A chamada para `complex_matrix()` prepara uma matriz retangular de números complexos no intervalo de -2 a 0,5 na direção x e entre -1,5 e 1,5 na direção y. A chamada subsequente para `get_members()` passa apenas pelos números que são membros do conjunto Mandelbrot. Finalmente, `plt.scatter()` plota o conjunto e `plt.show()` revela esta imagem:
+
+![fractal_img_py_num1](../images/fractal_img_py_num1.jpeg)
+
+<p align="center">
+  Visualization of the Mandelbrot Set in a Scatter Plot
+</p>
+
+Ele contém 749 pontos e se assemelha à impressão ASCII original feita em uma impressora matricial pelo próprio Benoît Mandelbrot algumas décadas atrás. Você está revivendo a história matemática! Brinque ajustando a densidade de pixels e o número de iterações para ver como elas afetam o resultado.

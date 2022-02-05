@@ -1,4 +1,4 @@
 git add -A
-git commit -m "Next Topic: Low-Resolution Scatter Plot"
+git commit -m "Next Topic: High-Resolution Black-and-White Visualization"
 git push
 git status
