@@ -1,3 +1,4 @@
+from viewport import Viewport
 from math import log
 from mandelbrot import MandelbrotSet
 from dataclasses import dataclass
@@ -278,5 +279,72 @@ for y in range(height):
         c = scale * complex(x - width / 2, height / 2 - y)
         instability = 1 - mandelbrot_set.stability(c, smooth=True)
         image.putpixel((x, y), int(instability * 255))
+
+image.show()
+
+
+mandelbrot_set = MandelbrotSet(max_iterations=20)
+
+image = Image.new(mode="1", size=(512, 512), color=1)
+for pixel in Viewport(image, center=-0.75, width=3.5):
+    if complex(pixel) in mandelbrot_set:
+        pixel.color = 0
+
+image.show()
+
+
+@dataclass
+class Viewport:
+    image: Image.Image
+    center: complex
+    width: float
+
+    @property
+    def height(self):
+        return self.scale * self.image.height
+
+    @property
+    def offset(self):
+        return self.center + complex(-self.width, self.height) / 2
+
+    @property
+    def scale(self):
+        return self.width / self.image.width
+
+    def __iter__(self):
+        for y in range(self.image.height):
+            for x in range(self.image.width):
+                yield Pixel(self, x, y)
+
+
+@dataclass
+class Pixel:
+    viewport: Viewport
+    x: int
+    y: int
+
+    @property
+    def color(self):
+        return self.viewport.image.getpixel((self.x, self.y))
+
+    @color.setter
+    def color(self, value):
+        self.viewport.image.putpixel((self.x, self.y), value)
+
+    def __complex__(self):
+        return (
+            complex(self.x, -self.y)
+            * self.viewport.scale
+            + self.viewport.offset
+        )
+
+
+mandelbrot_set = MandelbrotSet(max_iterations=256, escape_radius=1000)
+
+image = Image.new(mode="L", size=(512, 512))
+for pixel in Viewport(image, center=-0.7435 + 0.1314j, width=0.002):
+    c = complex(pixel)
+    instability = 1 - mandelbrot_set.stability(c, smooth=True)
+    pixel.color = int(instability * 255)
 
 image.show()

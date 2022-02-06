@@ -1,4 +1,4 @@
 git add -A
-git commit -m "Next Sub-Topic: Translating Between Set Elements and Pixels"
+git commit -m "Next Topic: Making an Artistic Representation of the Mandelbrot Set"
 git push
 git status

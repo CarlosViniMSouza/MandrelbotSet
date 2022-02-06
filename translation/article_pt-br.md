@@ -760,3 +760,140 @@ Você habilita a suavização ativando o sinalizador de `suavização` para o c�
 </p>
 
 Ter contagens de fuga fracionárias na ponta dos dedos abre possibilidades interessantes para brincar com as cores em sua visualização de conjunto de Mandelbrot. Você irá explorá-los mais tarde, mas primeiro, você pode melhorar e simplificar o código de desenho para torná-lo robusto e mais elegante.
+
+## Traduzindo entre elementos definidos e pixels
+
+Até agora, sua visualização mostrou uma imagem estática do fractal, mas não permitiu que você **amplie** uma área específica ou se **desloque** para revelar mais detalhes. Ao contrário dos logaritmos anteriores, a matemática para dimensionar e traduzir a imagem não é muito difícil. No entanto, adiciona um pouco de complexidade de código, que vale a pena abstrair em classes auxiliares antes de prosseguir.
+
+Em um nível alto, o desenho do conjunto de Mandelbrot pode ser dividido em três etapas:
+
+  1. Converta as coordenadas de um pixel em um número complexo.
+  
+  2. Verifique se esse número complexo pertence ao conjunto de Mandelbrot.
+  
+  3. Atribua uma cor ao pixel de acordo com sua estabilidade.
+
+Você pode criar um tipo de dados de **pixel inteligente** que encapsulará a conversão entre os sistemas de coordenadas, contará o dimensionamento e lidará com as cores. Para a camada de integração entre o Pillow e seus pixels, você pode criar uma classe de **viewport** que cuidará da panorâmica e do zoom.
+
+O código para as classes **Pixel** e **Viewport** seguirá em breve, mas uma vez implementados, você poderá reescrever o código de desenho em apenas algumas linhas de código Python:
+
+```python
+from PIL import Image
+from mandelbrot import MandelbrotSet
+from viewport import Viewport
+
+mandelbrot_set = MandelbrotSet(max_iterations=20)
+
+image = Image.new(mode="1", size=(512, 512), color=1)
+for pixel in Viewport(image, center=-0.75, width=3.5):
+    if complex(pixel) in mandelbrot_set:
+        pixel.color = 0
+
+image.show()
+```
+
+É isso! A classe Viewport envolve uma instância da imagem do Pillow. Ele calcula o fator de escala relevante, o deslocamento e a extensão vertical das coordenadas mundiais com base em um **ponto central** e na **largura** da janela de visualização em unidades mundiais. Como [iterável](https://docs.python.org/3/glossary.html#term-iterable), ele também fornece objetos Pixel pelos quais você pode percorrer. Os pixels sabem como se converter em números complexos e são amigos da instância da imagem envolvida pela janela de visualização.
+
+> **Nota**: O terceiro argumento passado para a função construtora da imagem de um Pillow permite definir a cor do plano de fundo, cujo padrão é preto. Nesse caso, você deseja um fundo branco, que corresponde à intensidade do pixel igual a um no modo de pixel binário.
+
+Você pode implementar a viewport anotando-a com o decorador `@dataclass` como fez com a classe MandelbrotSet antes:
+
+```python
+from dataclasses import dataclass
+from PIL import Image
+
+@dataclass
+class Viewport:
+    image: Image.Image
+    center: complex
+    width: float
+
+    @property
+    def height(self):
+        return self.scale * self.image.height
+
+    @property
+    def offset(self):
+        return self.center + complex(-self.width, self.height) / 2
+
+    @property
+    def scale(self):
+        return self.width / self.image.width
+
+    def __iter__(self):
+        for y in range(self.image.height):
+            for x in range(self.image.width):
+                yield Pixel(self, x, y)
+```
+
+A viewport recebe como argumentos uma instância de imagem, um ponto central expresso como um número complexo e uma extensão horizontal de coordenadas mundiais. Ele também deriva um punhado de [propriedades](https://realpython.com/python-property/) somente leitura desses três parâmetros, que os pixels usarão mais tarde. Finalmente, a classe implementa um método especial, `.__iter__()`, que faz parte do **protocolo do iterador** em Python que possibilita a iteração sobre classes personalizadas.
+
+Como você já deve ter adivinhado olhando para o bloco de código acima, a classe `Pixel` aceita uma instância de `Viewport` e coordenadas de pixel:
+
+```python
+@dataclass
+class Pixel:
+    viewport: Viewport
+    x: int
+    y: int
+
+    @property
+    def color(self):
+        return self.viewport.image.getpixel((self.x, self.y))
+
+    @color.setter
+    def color(self, value):
+        self.viewport.image.putpixel((self.x, self.y), value)
+
+    def __complex__(self):
+        return (
+                complex(self.x, -self.y)
+                * self.viewport.scale
+                + self.viewport.offset
+        )
+```
+
+Há apenas uma propriedade definida aqui, mas inclui um getter e um setter para a cor do pixel, que delega a Pillow através da viewport. O método especial `.__complex__()` cuida de converter o pixel em um número complexo relevante em unidades mundiais. Ele inverte as coordenadas de pixel ao longo do eixo vertical, converte-os em um número complexo e, em seguida, aproveita a aritmética de números complexos para dimensioná-los e movê-los.
+
+Vá em frente e dê uma olhada no seu novo código. O conjunto de Mandelbrot contém estruturas intrincadas virtualmente ilimitadas que só podem ser vistas sob grande ampliação. Algumas áreas apresentam espirais e ziguezagues semelhantes a cavalos-marinhos, polvos ou elefantes. Ao aumentar o zoom, não se esqueça de aumentar o número máximo de iterações para revelar mais detalhes:
+
+
+```python
+from PIL import Image
+from mandelbrot import MandelbrotSet
+from viewport import Viewport
+
+mandelbrot_set = MandelbrotSet(max_iterations=256, escape_radius=1000)
+
+image = Image.new(mode="L", size=(512, 512))
+for pixel in Viewport(image, center=-0.7435 + 0.1314j, width=0.002):
+    c = complex(pixel)
+    instability = 1 - mandelbrot_set.stability(c, smooth=True)
+    pixel.color = int(instability * 255)
+
+image.show()
+```
+
+A janela de visualização abrange 0,002 unidades mundiais e está centrada em -0,7435 + 0,1314j, que está perto de um [ponto Misiurewicz](https://en.wikipedia.org/wiki/Misiurewicz_point) que produz uma bela espiral. Dependendo do número de iterações, você obterá uma imagem mais escura ou mais clara com um grau variável de detalhes. Você pode usar o Pillow para aumentar o brilho se quiser:
+
+```python
+from PIL import ImageEnhance
+
+enhancer = ImageEnhance.Brightness(image)
+enhancer.enhance(1.25).show()
+```
+
+Isso tornará a imagem mais brilhante em 25% e exibirá esta espiral:
+
+![fractal_num8](https://files.realpython.com/media/spiral.9756b76ed96d.png)
+
+<p align="center">
+  The Mandelbrot Set Centered At a Misiurewicz Point
+<p>
+
+Você pode encontrar muitos outros pontos exclusivos produzindo resultados tão espetaculares. A Wikipedia hospeda uma [galeria de imagens](https://en.wikipedia.org/wiki/Mandelbrot_set#Image_gallery_of_a_zoom_sequence) inteira de vários detalhes do conjunto de Mandelbrot que vale a pena explorar.
+
+Se você já começou a verificar pontos diferentes, provavelmente também notou que o **tempo de renderização** é altamente sensível à área que você está olhando no momento. Pixels localizados longe do fractal divergem para o infinito mais cedo, enquanto aqueles mais próximos tendem a exigir mais iterações. Portanto, quanto mais conteúdo houver em uma área específica, mais tempo levará para resolver se esses pixels são estáveis ​​ou instáveis.
+
+Existem algumas opções disponíveis para você melhorar o desempenho de renderização do conjunto Mandelbrot em Python.
+No entanto, eles estão fora do escopo deste tutorial, portanto, sinta-se à vontade para explorá-los por conta própria, se estiver curioso. Agora é hora de dar um pouco de cor ao seu fractal.
