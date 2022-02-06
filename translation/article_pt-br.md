@@ -406,11 +406,7 @@ O NumPy funciona com o Pillow tão bem quanto com o Matplotlib. Você pode conve
 c = complex_matrix(-2, 0.5, -1.5, 1.5, pixel_density=512)
 image = Image.fromarray(~is_stable(c, num_iterations=20))
 image.show()
-
-# Output:
 ```
-
-![fractal_img_py_num3](../images/fractal_img_py_num3.jpeg)
 
 Observe o uso do **operador not bit a bit** (~) na frente de sua matriz de estabilidade, que inverte todos os valores booleanos. Isso é para que o conjunto Mandelbrot apareça em preto em um fundo branco, já que o Pillow assume um fundo preto por padrão.
 
@@ -421,11 +417,7 @@ Se o NumPy for sua ferramenta preferida com a qual você está familiarizado, en
 > ```python
 > from PIL import Image
 > Image.effect_mandelbrot((512, 512), (-3, -2.5, 2, 2.5), 100).show()
->
-> # Output:
 > ```
->
-> ![fractal_img_py_num4](../images/fractal_img_py_num4.jpeg)
 >
 > O primeiro argumento passado para a função é uma tupla contendo a largura e a altura da imagem resultante em pixels. O próximo argumento define a caixa delimitadora como cantos inferior esquerdo e superior direito. O terceiro argumento é a qualidade da imagem em uma escala de 0 a 100.
 >
