@@ -1,4 +1,4 @@
 git add -A
-git commit -m "Next Topic: High-Resolution Black-and-White Visualization"
+git commit -m "Next Topic: Drawing the Mandelbrot Set With Pillow"
 git push
 git status

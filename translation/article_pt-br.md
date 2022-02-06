@@ -200,7 +200,7 @@ então a iteração parou e pulou o pixel atual.
 
 Você pode achar surpreendente que uma fórmula relativamente simples que envolve apenas adição e multiplicação possa produzir uma estrutura tão elaborada. Mas isso não é tudo. Acontece que você pode pegar a mesma fórmula e usá-la para gerar infinitos fractais únicos! Você quer ver como?
 
-# O Mapa dos Conjuntos de Julia
+## O Mapa dos Conjuntos de Julia
 
 É difícil falar sobre o conjunto de Mandelbrot sem mencionar os conjuntos de Julia, que foram descobertos pelo matemático francês [Gaston Julia](https://en.wikipedia.org/wiki/Gaston_Julia) várias décadas antes sem a ajuda de computadores. Os conjuntos de Julia e o conjunto de Mandelbrot estão intimamente relacionados porque você pode obtê-los através da mesma fórmula recursiva, apenas com diferentes conjuntos de condições de partida.
 
@@ -327,7 +327,7 @@ O código na linha destacada é executado para _todos_ os elementos da matriz _c
 
 Após um número escolhido de iterações, a magnitude de cada número complexo na matriz permanecerá dentro ou excederá o limite de dois. Aqueles que são pequenos o suficiente são provavelmente membros do conjunto de Mandelbrot. Agora você pode visualizá-los usando o Matplotlib.
 
-# Gráfico de dispersão de baixa resolução
+## Gráfico de dispersão de baixa resolução
 
 Uma maneira rápida e suja de visualizar o conjunto de Mandelbrot é através de um [gráfico de dispersão](https://realpython.com/visualizing-python-plt-scatter/), que ilustra as relações entre variáveis ​​emparelhadas. Como os números complexos são pares de componentes **reais** e **imaginários**, você pode desembaraçá-los em matrizes separadas que funcionarão bem com o gráfico de dispersão.
 
@@ -370,3 +370,28 @@ A chamada para `complex_matrix()` prepara uma matriz retangular de números comp
 </p>
 
 Ele contém 749 pontos e se assemelha à impressão ASCII original feita em uma impressora matricial pelo próprio Benoît Mandelbrot algumas décadas atrás. Você está revivendo a história matemática! Brinque ajustando a densidade de pixels e o número de iterações para ver como elas afetam o resultado.
+
+## Visualização em preto e branco de alta resolução
+
+Para obter uma visualização mais detalhada do conjunto de Mandelbrot em preto e branco, você pode continuar aumentando a densidade de pixels de seu gráfico de dispersão até que os pontos individuais se tornem dificilmente discerníveis. Alternativamente, você pode usar o [plt do Matplotlib.imshow()](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.imshow.html) com um [mapa de cores](https://matplotlib.org/stable/tutorials/colors/colormaps.html) binário para plotar sua máscara booleana de estabilidade.
+
+Existem apenas alguns ajustes necessários em seu código existente:
+
+```python
+c = complex_matrix(-2, 0.5, -1.5, 1.5, pixel_density=512)
+plt.imshow(is_stable(c, num_iterations=20), cmap="binary")
+plt.gca().set_aspect("equal")
+plt.axis("off")
+plt.tight_layout()
+plt.show()
+```
+
+Aumente a densidade de pixels para um valor suficientemente grande, como 512. Em seguida, remova a chamada para `get_members()` e substitua o gráfico de dispersão por `plt.imshow()` para exibir os dados como uma imagem. Se tudo correr bem, você deverá ver esta imagem do conjunto de Mandelbrot:
+
+![fractal_img_py_num2](../images/fractal_img_py_num2.jpeg)
+
+<p align="center">
+  High-Resolution Visualization of the Mandelbrot Set in Black and White
+</p>
+
+Para ampliar uma área específica do fractal, altere os limites da matriz complexa de acordo e aumente o número de iterações por um fator de dez ou mais. Você também pode experimentar diferentes mapas de cores fornecidos pelo Matplotlib. No entanto, para realmente liberar seu artista interior, você pode querer molhar os pés com [Pillow](https://pypi.org/project/Pillow/), A biblioteca de imagens mais popular do Python.
