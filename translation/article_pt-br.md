@@ -424,3 +424,92 @@ Se o NumPy for sua ferramenta preferida com a qual você está familiarizado, en
 > Dê uma olhada no [código-fonte C](https://github.com/python-pillow/Pillow/blob/e122e8f3a663efe0fcdf604f189b5695ef9bf227/src/libImaging/Effects.c#L23) correspondente no GitHub se estiver interessado em como a função funciona.
 
 No restante desta seção, você fará o trabalho duro sozinho, sem usar atalhos.
+
+## Encontrando elementos convergentes do conjunto
+
+Anteriormente, você construiu uma matriz de estabilidade usando a vetorização do NumPy para determinar quais dos números complexos fornecidos pertencem ao conjunto de Mandelbrot. Sua função iterou sobre a fórmula um número fixo de vezes e retornou uma matriz bidimensional de valores booleanos. Usando Python puro, você pode modificar esta função para que funcione nos números individuais em vez de em uma matriz inteira:
+
+```python
+def is_stable(c, max_iterations):
+    z = 0
+    for _ in range(max_iterations):
+        z = z ** 2 + c
+        if abs(z) > 2:
+            return False
+    return True
+```
+
+Parece bastante semelhante à versão do NumPy de antes. No entanto, existem algumas diferenças importantes. Notavelmente, o parâmetro _c_ representa um único número complexo e a função retorna um valor booleano escalar. Em segundo lugar, há uma condição if no corpo do loop, que pode encerrar a iteração prematuramente assim que a magnitude do número resultante atingir um limite conhecido.
+
+> **Nota**: Um dos parâmetros da função foi renomeado de `num_iterations` para `max_iterations` para refletir o fato de que o número de iterações não é mais fixo e pode variar entre os valores testados.
+
+Você pode usar sua nova função para determinar se um número complexo cria uma sequência estável que **converge** ou não. Isso se traduz diretamente na associação ao conjunto de Mandelbrot. No entanto, o resultado pode depender do número máximo de iterações solicitadas:
+
+```python
+is_stable(0.26, max_iterations=20)
+# Output: True
+is_stable(0.26, max_iterations=30)
+# Output: False
+```
+
+Por exemplo, o número c = 0,26 está localizado próximo à borda do fractal, então você receberá uma resposta errada com poucas iterações. Aumentar o número máximo de iterações pode ser mais preciso, revelando mais detalhes sobre a visualização.
+
+Não há nada de errado em chamar uma função, mas não seria melhor alavancar o Python em e não em operadores? Transformar esse código em uma [classe Python](https://realpython.com/python3-object-oriented-programming/) permitirá que você substitua esses operadores e aproveite uma sintaxe muito mais limpa e Pythonica. Além disso, você poderá reter o número máximo de iterações em muitas invocações de função encapsulando o estado em seu objeto.
+
+Você pode aproveitar as [classes de dados](https://realpython.com/python-data-classes/) para evitar ter que definir uma função construtora personalizada. Aqui está uma implementação baseada em classe equivalente do mesmo código:
+
+```python
+from dataclasses import dataclass
+
+@dataclass
+class MandelbrotSet:
+    max_iterations: int
+
+    def __contains__(self, c: complex) -> bool:
+        z = 0
+        for _ in range(self.max_iterations):
+            z = z ** 2 + c
+            if abs(z) > 2:
+                return False
+        return True
+```
+
+Além de implementar o método especial [.__contains__()](https://docs.python.org/3/reference/datamodel.html?#object.__contains__), adicionar algumas [dicas de tipo](https://realpython.com/python-type-checking/) e mover o parâmetro `max_iterations` para fora da assinatura da função, o resto do código permanece o mesmo. Supondo que você o salvou em um arquivo chamado `mandelbrot.py`, você pode iniciar uma sessão interativa do interpretador Python no mesmo diretório e importar sua classe:
+
+```python
+from mandelbrot import MandelbrotSet
+mandelbrot_set = MandelbrotSet(max_iterations=30)
+0.26 in mandelbrot_set
+# Output: False
+0.26 not in mandelbrot_set
+# Output: True
+```
+
+Brilhante! Esse é precisamente o tipo de informação que você precisa para fazer uma visualização em **preto e branco** do conjunto de Mandelbrot. Mais tarde, você aprenderá sobre uma maneira menos detalhada de desenhar pixels com o Pillow, mas aqui está um exemplo bruto para iniciantes:
+
+```python
+from mandelbrot import MandelbrotSet
+mandelbrot_set = MandelbrotSet(max_iterations=20)
+
+width, height = 512, 512
+scale = 0.0075
+BLACK_AND_WHITE = "1"
+
+from PIL import Image
+image = Image.new(mode=BLACK_AND_WHITE, size=(width, height))
+for y in range(height):
+    for x in range(width):
+        c = scale * complex(x - width / 2, height / 2 - y)
+        image.putpixel((x, y), c not in mandelbrot_set)
+
+image.show()
+```
+
+Depois de importar o módulo [Image](https://pillow.readthedocs.io/en/stable/reference/Image.html) da biblioteca, você cria uma nova imagem Pillow com um [modo de pixel](https://pillow.readthedocs.io/en/stable/handbook/concepts.html#concept-modes) preto e branco e um tamanho de 512 por 512 pixels. Então, à medida que você itera sobre linhas e colunas de pixels, você dimensiona e traduz cada ponto de coordenadas de pixel para coordenadas mundiais. Finalmente, você liga um pixel quando o número complexo correspondente _não pertence_ ao conjunto de Mandelbrot, mantendo o interior do fractal preto.
+
+> **Nota**: O método `.putpixel()` espera um valor numérico de um ou zero neste modo de pixel específico. No entanto, uma vez que a expressão booleana é avaliada como `True` ou `False` no trecho de código acima, Python irá substituí-lo por um ou zero, respectivamente. Funciona como esperado porque o tipo de dados `bool` do Python é na verdade uma subclasse de integer.
+
+Ao executar esse código, você notará imediatamente que ele é executado muito mais lentamente do que os exemplos anteriores. Como notado antes,
+isso ocorre em parte porque NumPy e Matplotlib fornecem ligações Python para código C altamente otimizado, enquanto você acabou de implementar a parte mais crítica em Python puro. Fora isso, você tem loops aninhados e está chamando uma função centenas de milhares de vezes!
+
+De qualquer forma, não se preocupe com o desempenho. Seu objetivo é aprender os fundamentos do desenho do conjunto de Mandelbrot em Python. Em seguida, você melhorará sua visualização fractal revelando mais informações nela.

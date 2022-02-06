@@ -1,3 +1,5 @@
+from mandelbrot import MandelbrotSet
+from dataclasses import dataclass
 from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
@@ -16,21 +18,6 @@ print(z(2, 4))
 for n in range(10):
     print(f"z({n}) = {z(n, c=1)}")
 
-"""
-Output:
-
-z(0) = 0
-z(1) = 1
-z(2) = 2
-z(3) = 5
-z(4) = 26
-z(5) = 677
-z(6) = 458330
-z(7) = 210066388901
-z(8) = 44127887745906175987802
-z(9) = 1947270476915296449559703445493848930452791205
-"""
-
 
 def sequence(c):
     z = 0
@@ -44,21 +31,6 @@ for n, z in enumerate(sequence(c=1)):
     if n >= 9:
         break
 
-"""
-Output:
-
-z(0) = 0
-z(1) = 1
-z(2) = 2
-z(3) = 5
-z(4) = 26
-z(5) = 677
-z(6) = 458330
-z(7) = 210066388901
-z(8) = 44127887745906175987802
-z(9) = 1947270476915296449559703445493848930452791205
-"""
-
 
 def sequence(c, z=0):
     while True:
@@ -68,7 +40,6 @@ def sequence(c, z=0):
 
 
 print(sequence(c=4, z=0))
-# Output: <generator object sequence at 0x000001F498FE5FC0>
 
 
 def complex_matrix(xmin, xmax, ymin, ymax, pixel_density):
@@ -121,3 +92,35 @@ image = Image.fromarray(~is_stable(c, num_iterations=20))
 image.show()
 
 img = Image.effect_mandelbrot((512, 512), (-3, -2.5, 2, 2.5), 100).show()
+
+
+def is_stable(c, max_iterations):
+    z = 0
+    for _ in range(max_iterations):
+        z = z ** 2 + c
+        if abs(z) > 2:
+            return False
+    return True
+
+
+is_stable(0.26, max_iterations=20)
+
+is_stable(0.26, max_iterations=30)
+
+
+@dataclass
+class MandelbrotSet:
+    max_iterations: int
+
+    def __contains__(self, c: complex) -> bool:
+        z = 0
+        for _ in range(self.max_iterations):
+            z = z ** 2 + c
+            if abs(z) > 2:
+                return False
+        return True
+
+
+mandelbrot_set = MandelbrotSet(max_iterations=30)
+0.26 in mandelbrot_set
+0.26 not in mandelbrot_set
