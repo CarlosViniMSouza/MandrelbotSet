@@ -1,3 +1,4 @@
+from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -113,3 +114,10 @@ plt.gca().set_aspect("equal")
 plt.axis("off")
 plt.tight_layout()
 plt.show()
+
+
+c = complex_matrix(-2, 0.5, -1.5, 1.5, pixel_density=512)
+image = Image.fromarray(~is_stable(c, num_iterations=20))
+image.show()
+
+img = Image.effect_mandelbrot((512, 512), (-3, -2.5, 2, 2.5), 100).show()

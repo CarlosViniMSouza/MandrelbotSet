@@ -1,4 +1,4 @@
 git add -A
-git commit -m "Next Topic: Drawing the Mandelbrot Set With Pillow"
+git commit -m "Next Sub-Topic: Finding Convergent Elements of the Set"
 git push
 git status

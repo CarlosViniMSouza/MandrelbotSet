@@ -395,3 +395,40 @@ Aumente a densidade de pixels para um valor suficientemente grande, como 512. Em
 </p>
 
 Para ampliar uma área específica do fractal, altere os limites da matriz complexa de acordo e aumente o número de iterações por um fator de dez ou mais. Você também pode experimentar diferentes mapas de cores fornecidos pelo Matplotlib. No entanto, para realmente liberar seu artista interior, você pode querer molhar os pés com [Pillow](https://pypi.org/project/Pillow/), A biblioteca de imagens mais popular do Python.
+
+# Desenhando o conjunto Mandelbrot com Pillow
+
+Esta seção exigirá um pouco mais de esforço porque você fará parte do trabalho que o NumPy e o Matplotlib fizeram por você antes. Mas ter um controle mais granular sobre o processo de visualização permitirá que você descreva o conjunto de Mandelbrot de maneiras muito mais interessantes. Pelo caminho, você aprenderá alguns conceitos úteis e seguirá as melhores práticas [Pythonic](https://realpython.com/learning-paths/writing-pythonic-code/).
+
+O NumPy funciona com o Pillow tão bem quanto com o Matplotlib. Você pode converter uma imagem Pillow em um array NumPy com [np.asarray()](https://numpy.org/doc/stable/reference/generated/numpy.asarray.html) ou vice-versa usando [Image.fromarray()](https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.fromarray). Graças a esta compatibilidade, você pode atualizar seu código de plotagem da seção anterior substituindo o plt.imshow() do Matplotlib por uma chamada muito semelhante ao método de fábrica do Pillow:
+
+```python
+c = complex_matrix(-2, 0.5, -1.5, 1.5, pixel_density=512)
+image = Image.fromarray(~is_stable(c, num_iterations=20))
+image.show()
+
+# Output:
+```
+
+![fractal_img_py_num3](../images/fractal_img_py_num3.jpeg)
+
+Observe o uso do **operador not bit a bit** (~) na frente de sua matriz de estabilidade, que inverte todos os valores booleanos. Isso é para que o conjunto Mandelbrot apareça em preto em um fundo branco, já que o Pillow assume um fundo preto por padrão.
+
+Se o NumPy for sua ferramenta preferida com a qual você está familiarizado, então sinta-se à vontade para incorporá-lo ao longo desta seção. Ele terá um desempenho muito mais rápido do que o código Python puro que você está prestes a ver porque o NumPy é altamente otimizado e depende de código de máquina compilado. Mesmo assim, implementar o código de desenho do zero lhe dará o controle final e uma compreensão profunda das etapas individuais envolvidas.
+
+> **Curiosidade**: A biblioteca de imagens Pillow vem com uma função de conveniência que pode gerar uma imagem do conjunto de Mandelbrot em uma linha de código Python:
+>
+> ```python
+> from PIL import Image
+> Image.effect_mandelbrot((512, 512), (-3, -2.5, 2, 2.5), 100).show()
+>
+> # Output:
+> ```
+>
+> ![fractal_img_py_num4](../images/fractal_img_py_num4.jpeg)
+>
+> O primeiro argumento passado para a função é uma tupla contendo a largura e a altura da imagem resultante em pixels. O próximo argumento define a caixa delimitadora como cantos inferior esquerdo e superior direito. O terceiro argumento é a qualidade da imagem em uma escala de 0 a 100.
+>
+> Dê uma olhada no [código-fonte C](https://github.com/python-pillow/Pillow/blob/e122e8f3a663efe0fcdf604f189b5695ef9bf227/src/libImaging/Effects.c#L23) correspondente no GitHub se estiver interessado em como a função funciona.
+
+No restante desta seção, você fará o trabalho duro sozinho, sem usar atalhos.
