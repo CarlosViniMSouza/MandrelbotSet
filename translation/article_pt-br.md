@@ -897,3 +897,10 @@ Se você já começou a verificar pontos diferentes, provavelmente também notou
 
 Existem algumas opções disponíveis para você melhorar o desempenho de renderização do conjunto Mandelbrot em Python.
 No entanto, eles estão fora do escopo deste tutorial, portanto, sinta-se à vontade para explorá-los por conta própria, se estiver curioso. Agora é hora de dar um pouco de cor ao seu fractal.
+
+# Fazendo uma representação artística do conjunto de Mandelbrot
+
+Como você já pode desenhar o fractal em tons de cinza, adicionar mais cores não deve ser muito difícil. Depende inteiramente de você como mapear a estabilidade de um pixel em um matiz. Embora existam muitos [algoritmos para traçar o conjunto de Mandelbrot](https://en.wikipedia.org/wiki/Plotting_algorithms_for_the_Mandelbrot_set) de maneiras esteticamente agradáveis, sua imaginação é o único limite!
+
+Você precisará fazer alguns ajustes no código de desenho da seção anterior antes de prosseguir. Especificamente,
+você mudará para um modo de cores mais rico e definirá algumas funções auxiliares reutilizáveis ​​para facilitar sua vida.
