@@ -124,3 +124,88 @@ class MandelbrotSet:
 mandelbrot_set = MandelbrotSet(max_iterations=30)
 0.26 in mandelbrot_set
 0.26 not in mandelbrot_set
+
+
+@dataclass
+class MandelbrotSet:
+    max_iterations: int
+
+    def escape_count(self, c: complex) -> int:
+        z = 0
+        for iteration in range(self.max_iterations):
+            z = z ** 2 + c
+            if abs(z) > 2:
+                return iteration
+        return self.max_iterations
+
+
+@dataclass
+class MandelbrotSet:
+    max_iterations: int
+
+    def stability(self, c: complex) -> float:
+        return self.escape_count(c) / self.max_iterations
+
+    def escape_count(self, c: complex) -> int:
+        z = 0
+        for iteration in range(self.max_iterations):
+            z = z ** 2 + c
+            if abs(z) > 2:
+                return iteration
+        return self.max_iterations
+
+
+@dataclass
+class MandelbrotSet:
+    max_iterations: int
+
+    def __contains__(self, c: complex) -> bool:
+        return self.stability(c) == 1
+
+    def stability(self, c: complex) -> float:
+        return self.escape_count(c) / self.max_iterations
+
+    def escape_count(self, c: complex) -> int:
+        z = 0
+        for iteration in range(self.max_iterations):
+            z = z ** 2 + c
+            if abs(z) > 2:
+                return iteration
+        return self.max_iterations
+
+
+mandelbrot_set = MandelbrotSet(max_iterations=30)
+
+mandelbrot_set.escape_count(0.25)
+# Output: 30
+
+mandelbrot_set.stability(0.25)
+# Output: 1.0
+
+0.25 in mandelbrot_set
+# Output: True
+
+mandelbrot_set.escape_count(0.26)
+# Output: 29
+
+mandelbrot_set.stability(0.26)
+# Output: 0.9666666666666667
+
+0.26 in mandelbrot_set
+# Output: False
+
+
+mandelbrot_set = MandelbrotSet(max_iterations=20)
+
+width, height = 512, 512
+scale = 0.0075
+GRAYSCALE = "L"
+
+image = Image.new(mode=GRAYSCALE, size=(width, height))
+for y in range(height):
+    for x in range(width):
+        c = scale * complex(x - width / 2, height / 2 - y)
+        instability = 1 - mandelbrot_set.stability(c)
+        image.putpixel((x, y), int(instability * 255))
+
+image.show()

@@ -513,3 +513,140 @@ Ao executar esse código, você notará imediatamente que ele é executado muito
 isso ocorre em parte porque NumPy e Matplotlib fornecem ligações Python para código C altamente otimizado, enquanto você acabou de implementar a parte mais crítica em Python puro. Fora isso, você tem loops aninhados e está chamando uma função centenas de milhares de vezes!
 
 De qualquer forma, não se preocupe com o desempenho. Seu objetivo é aprender os fundamentos do desenho do conjunto de Mandelbrot em Python. Em seguida, você melhorará sua visualização fractal revelando mais informações nela.
+
+## Medindo a divergência com a contagem de fuga
+
+Ok, você sabe como saber se um número complexo faz a sequência de Mandelbrot convergir ou não, o que por sua vez permite visualizar o conjunto de Mandelbrot em preto e branco. Você pode adicionar um pouco de profundidade passando de uma imagem binária para uma **escala de cinza** com mais de dois níveis de intensidade por pixel? A resposta é sim!
+
+Tente olhar para o problema de um ângulo diferente. Em vez de encontrar uma borda afiada do fractal, você pode quantificar a rapidez com que os pontos situados fora do conjunto de Mandelbrot fazem a fórmula recursiva divergir ao infinito. Alguns se tornarão instáveis ​​rapidamente, enquanto outros podem levar centenas de milhares de iterações antes disso. Em geral, os pontos mais próximos da borda do fractal serão menos instáveis ​​do que aqueles localizados mais distantes.
+
+Com um número suficiente de iterações, passar por todas elas sem interrupção indicará que um número testado provavelmente é um membro do conjunto porque os elementos de sequência relacionados permanecem estáveis. Por outro lado, sair do loop antes de atingir o número máximo de iterações só acontecerá quando a sequência divergir claramente. O número de iterações necessárias para detectar a divergência é conhecido como **contagem de escape**.
+
+> **Nota**: Usar uma abordagem iterativa para testar a estabilidade de um determinado ponto é apenas uma aproximação do conjunto real de Mandelbrot. Para alguns pontos, você precisará de muito mais iterações do que seu número máximo de iterações para saber se elas são estáveis ​​ou não, o que pode não ser viável na prática.
+
+Você pode usar a contagem de escape para introduzir vários níveis de cinza. No entanto, geralmente é mais conveniente lidar com contagens de escape normalizadas para que seus valores estejam em uma escala de zero a um, independentemente do número máximo de iterações. Para calcular tal **métrica de estabilidade** de um determinado ponto, use a razão entre o número real de iterações necessárias para tomar uma decisão e o número máximo no qual você desiste incondicionalmente.
+
+Vamos modificar sua classe MandelbrotSet para calcular a contagem de escape. Primeiro, renomeie seu método especial de acordo e faça com que ele retorne o número de iterações em vez de um valor booleano:
+
+```python
+from dataclasses import dataclass
+
+@dataclass
+class MandelbrotSet:
+    max_iterations: int
+
+    def escape_count(self, c: complex) -> int:
+        z = 0
+        for iteration in range(self.max_iterations):
+            z = z ** 2 + c
+            if abs(z) > 2:
+                return iteration
+        return self.max_iterations
+```
+
+Observe como o loop declara uma variável, iteração, para contar as iterações. Em seguida, defina a estabilidade como uma proporção da contagem de escape para o número máximo de iterações:
+
+```python
+from dataclasses import dataclass
+
+@dataclass
+class MandelbrotSet:
+    max_iterations: int
+
+    def stability(self, c: complex) -> float:
+        return self.escape_count(c) / self.max_iterations
+
+    def escape_count(self, c: complex) -> int:
+        z = 0
+        for iteration in range(self.max_iterations):
+            z = z ** 2 + c
+            if abs(z) > 2:
+                return iteration
+        return self.max_iterations
+```
+
+Por fim, traga de volta o método especial removido, ao qual o operador de teste de associação em delegados. No entanto, você usará uma implementação ligeiramente diferente que se baseia na estabilidade:
+
+```python
+from dataclasses import dataclass
+
+@dataclass
+class MandelbrotSet:
+    max_iterations: int
+
+    def __contains__(self, c: complex) -> bool:
+        return self.stability(c) == 1
+
+    def stability(self, c: complex) -> float:
+        return self.escape_count(c) / self.max_iterations
+
+    def escape_count(self, c: complex) -> int:
+        z = 0
+        for iteration in range(self.max_iterations):
+            z = z ** 2 + c
+            if abs(z) > 2:
+                return iteration
+        return self.max_iterations
+```
+
+O operador de teste de associação retornará True somente quando a estabilidade for igual a um ou 100%. Caso contrário, você obterá um valor False. Você pode inspecionar a contagem de escape de concreto e os valores de estabilidade da seguinte maneira:
+
+```python
+from mandelbrot import MandelbrotSet
+
+
+mandelbrot_set = MandelbrotSet(max_iterations=30)
+
+mandelbrot_set.escape_count(0.25)
+# Output: 30
+
+mandelbrot_set.stability(0.25)
+# Output: 1.0
+
+0.25 in mandelbrot_set
+# Output: True
+
+mandelbrot_set.escape_count(0.26)
+# Output: 29
+
+mandelbrot_set.stability(0.26)
+# Output: 0.9666666666666667
+
+0.26 in mandelbrot_set
+# Output: False
+```
+
+Para _c = 0.25_, o número observado de iterações é igual ao número máximo de iterações declarado, tornando a estabilidade igual a um. Em contraste, escolher _c = 0.26_ produz resultados ligeiramente diferentes.
+
+A implementação atualizada da classe MandelbrotSet permite uma visualização em escala de cinza, que une intensidade de pixel com estabilidade. Você pode reutilizar a maior parte do código de desenho da última seção, mas precisará alterar o modo de pixel para L, que significa [luminância](https://en.wikipedia.org/wiki/Luminance). Nesse modo, cada pixel recebe um valor inteiro entre 0 e 255, portanto, você também precisará dimensionar a estabilidade fracionária de forma adequada:
+
+```python
+from mandelbrot import MandelbrotSet
+mandelbrot_set = MandelbrotSet(max_iterations=20)
+
+width, height = 512, 512
+scale = 0.0075
+GRAYSCALE = "L"
+
+from PIL import Image
+image = Image.new(mode=GRAYSCALE, size=(width, height))
+for y in range(height):
+    for x in range(width):
+        c = scale * complex(x - width / 2, height / 2 - y)
+        instability = 1 - mandelbrot_set.stability(c)
+        image.putpixel((x, y), int(instability * 255))
+
+image.show()
+```
+
+Novamente, para desenhar o conjunto Mandelbrot em preto enquanto ilumina apenas o exterior, você terá que inverter a estabilidade subtraindo-a de um. Quando tudo correr conforme o planejado, você verá uma representação aproximada da seguinte imagem:
+
+![fractal_num6](https://files.realpython.com/media/grayscale.896a1123f893.png)
+
+<p align="center">
+  Pillow's Rendering of the Mandelbrot Set in Grayscale
+</p>
+
+Uau! Isso já parece bem mais interessante. Infelizmente, os valores de estabilidade aparecem [quantizados](https://en.wikipedia.org/wiki/Color_quantization) em níveis notavelmente discretos porque a contagem de escape é um número inteiro. Aumentar o número máximo de iterações pode ajudar a aliviar isso, mas apenas até certo ponto. Além disso, adicionar mais iterações filtrará muito ruído, deixando menos conteúdo para ver neste nível de ampliação.
+
+Na próxima subseção, você aprenderá sobre uma maneira melhor de eliminar artefatos de bandas.
