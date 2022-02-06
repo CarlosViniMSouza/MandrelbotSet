@@ -348,3 +348,6 @@ for pixel in Viewport(image, center=-0.7435 + 0.1314j, width=0.002):
     pixel.color = int(instability * 255)
 
 image.show()
+
+
+image = Image.new(mode="RGB", size=(width, height))

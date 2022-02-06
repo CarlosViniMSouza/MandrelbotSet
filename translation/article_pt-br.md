@@ -904,3 +904,15 @@ Como você já pode desenhar o fractal em tons de cinza, adicionar mais cores n�
 
 Você precisará fazer alguns ajustes no código de desenho da seção anterior antes de prosseguir. Especificamente,
 você mudará para um modo de cores mais rico e definirá algumas funções auxiliares reutilizáveis ​​para facilitar sua vida.
+
+## Paleta de cores
+
+Os artistas misturam tintas em um quadro físico chamado paleta desde os tempos antigos. Na computação, uma [paleta de cores](https://en.wikipedia.org/wiki/Palette_(computing)) representa uma **tabela de pesquisa de cores**, que é uma forma de compactação sem perdas. Ele reduz o consumo de memória de uma imagem indexando cada cor individual uma vez e, em seguida, referenciando-a em todos os pixels associados.
+
+Esta técnica é relativamente simples e rápida de calcular. Da mesma forma, você pode usar uma paleta predefinida para pintar seu fractal. No entanto, em vez de usar coordenadas de pixel para encontrar a cor correspondente, você pode usar a [contagem de escape](https://realpython.com/mandelbrot-set-python/#measuring-divergence-with-the-escape-count) como índice da paleta. Na verdade, suas visualizações anteriores já faziam isso aplicando uma paleta de 256 cinzas [monocromáticos](https://en.wikipedia.org/wiki/Monochrome), apenas sem armazená-los em cache em uma tabela de pesquisa.
+
+Para usar mais cores, você precisará primeiro criar sua imagem no **modo RGB**, que alocará 24 bits por pixel:
+
+```python
+image = Image.new(mode="RGB", size=(width, height))
+```
