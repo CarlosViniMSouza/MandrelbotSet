@@ -650,3 +650,113 @@ Novamente, para desenhar o conjunto Mandelbrot em preto enquanto ilumina apenas 
 Uau! Isso já parece bem mais interessante. Infelizmente, os valores de estabilidade aparecem [quantizados](https://en.wikipedia.org/wiki/Color_quantization) em níveis notavelmente discretos porque a contagem de escape é um número inteiro. Aumentar o número máximo de iterações pode ajudar a aliviar isso, mas apenas até certo ponto. Além disso, adicionar mais iterações filtrará muito ruído, deixando menos conteúdo para ver neste nível de ampliação.
 
 Na próxima subseção, você aprenderá sobre uma maneira melhor de eliminar artefatos de bandas.
+
+## Suavizando os artefatos de bandas
+
+Livrar-se das [faixas de cores](https://en.wikipedia.org/wiki/Colour_banding) do exterior do conjunto Mandelbrot se resume a usar **contagens de fuga fracionárias**. Uma maneira de interpolar seus valores intermediários é usar logaritmos. A [matemática subjacente](https://linas.org/art-gallery/escape/smooth.html) é bastante complicada, então vamos apenas aceitar a palavra dos matemáticos e atualizar o código:
+
+```python
+from dataclasses import dataclass
+from math import log
+
+@dataclass
+class MandelbrotSet:
+    max_iterations: int
+    escape_radius: float = 2.0
+
+    def __contains__(self, c: complex) -> bool:
+        return self.stability(c) == 1
+
+    def stability(self, c: complex, smooth=False) -> float:
+        return self.escape_count(c, smooth) / self.max_iterations
+
+    def escape_count(self, c: complex, smooth=False) -> int | float:
+        z = 0
+        for iteration in range(self.max_iterations):
+            z = z ** 2 + c
+            if abs(z) > self.escape_radius:
+                if smooth:
+                    return iteration + 1 - log(log(abs(z))) / log(2)
+                return iteration
+        return self.max_iterations
+```
+
+Depois de importar a função `log()` do módulo [math](https://realpython.com/python-math-module/), você adiciona um sinalizador booleano opcional que controla a suavização de seus métodos. Quando você ativa a suavização, a magia matemática entra em ação combinando o número de iterações com informações espaciais para o número divergente, expelindo um número de ponto flutuante.
+
+> Nota: A fórmula matemática acima é baseada na suposição de que o raio de escape se aproxima do infinito, então não pode mais ser codificado. É por isso que sua classe agora define um campo opcional `escape_radius` com um valor padrão de dois, que você poderá substituir à vontade ao criar novas instâncias do `MandelbrotSet`.
+
+Observe que, devido aos logaritmos em sua fórmula para a contagem de escape suavizada, a estabilidade associada pode ultrapassar ou até se tornar negativa! Aqui está um exemplo rápido que demonstra isso:
+
+```python
+from mandelbrot import MandelbrotSet
+mandelbrot_set = MandelbrotSet(max_iterations=30)
+
+mandelbrot_set.stability(-1.2039 - 0.1996j, smooth=True)
+# Output: 1.014794475165942
+
+mandelbrot_set.stability(42, smooth=True)
+# Output: -0.030071301713066417
+```
+
+Números maiores que um e menores que zero levarão a intensidades de pixel envolvendo os níveis máximo e mínimo permitidos. Portanto, não se esqueça de [fixar](https://en.wikipedia.org/wiki/Clamping_(graphics)) seus valores de pixel dimensionados com `max()` e `min()` antes de acender um pixel:
+
+```python
+from dataclasses import dataclass
+from math import log
+
+@dataclass
+class MandelbrotSet:
+    max_iterations: int
+    escape_radius: float = 2.0
+
+    def __contains__(self, c: complex) -> bool:
+        return self.stability(c) == 1
+
+    def stability(self, c: complex, smooth=False, clamp=True) -> float:
+        value = self.escape_count(c, smooth) / self.max_iterations
+        return max(0.0, min(value, 1.0)) if clamp else value
+
+    def escape_count(self, c: complex, smooth=False) -> int | float:
+        z = 0
+        for iteration in range(self.max_iterations):
+            z = z ** 2 + c
+            if abs(z) > self.escape_radius:
+                if smooth:
+                    return iteration + 1 - log(log(abs(z))) / log(2)
+                return iteration
+        return self.max_iterations
+```
+
+Ao calcular a estabilidade, você habilita a fixação por padrão, mas deixa o usuário final decidir como lidar com estouros e estouros. Algumas visualizações coloridas podem tirar proveito desse embrulho para produzir efeitos interessantes. Isso é controlado pelo sinalizador `clamp` no método `.stability()` acima. Você brincará com as visualizações em uma seção posterior.
+
+Veja como você pode colocar sua classe `MandelbrotSet` atualizada em ação:
+
+```python
+from mandelbrot import MandelbrotSet
+
+mandelbrot_set = MandelbrotSet(max_iterations=20, escape_radius=1000)
+
+width, height = 512, 512
+scale = 0.0075
+GRAYSCALE = "L"
+
+from PIL import Image
+image = Image.new(mode=GRAYSCALE, size=(width, height))
+for y in range(height):
+    for x in range(width):
+        c = scale * complex(x - width / 2, height / 2 - y)
+        instability = 1 - mandelbrot_set.stability(c, smooth=True)
+        image.putpixel((x, y), int(instability * 255))
+
+image.show()
+```
+
+Você habilita a suavização ativando o sinalizador de `suavização` para o cálculo de estabilidade. No entanto, fazer apenas isso ainda produziria um pouco de bandas, então você também pode aumentar o raio de escape para um valor relativamente grande, como mil. Finalmente, você verá uma foto do conjunto Mandelbrot com um exterior suave e sedoso:
+
+![fractal_num7](https://files.realpython.com/media/grayscale_smooth.feebc80bc370.png)
+
+<p align="center">
+  Pillow's Rendering of the Mandelbrot Set in Grayscale (Smoothed)
+</p>
+
+Ter contagens de fuga fracionárias na ponta dos dedos abre possibilidades interessantes para brincar com as cores em sua visualização de conjunto de Mandelbrot. Você irá explorá-los mais tarde, mas primeiro, você pode melhorar e simplificar o código de desenho para torná-lo robusto e mais elegante.
