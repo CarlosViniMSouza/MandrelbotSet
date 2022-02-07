@@ -1,3 +1,4 @@
+import matplotlib.cm
 from viewport import Viewport
 from math import log
 from mandelbrot import MandelbrotSet
@@ -365,3 +366,25 @@ def denormalize(palette):
         tuple(int(channel * 255) for channel in color)
         for color in palette
     ]
+
+
+colormaps = matplotlib.cm.get_cmap("twillight").colors
+palette = denormalize(colormaps)
+
+len(colormaps)
+# Output: 510
+
+colormaps[0]
+# Output: [0,8857501584075443, 0,8500092494306783, 0,8879736506427196]
+
+palette[0]
+# Output: (225, 216, 226)
+
+
+mandelbrot_set = MandelbrotSet(max_iterations=512, escape_radius=1000)
+image = Image.new(mode="RGB", size=(512, 512))
+viewport = Viewport(image, centro=-0.7435 + 0.1314j, largura=0.002)
+
+paint(mandelbrot_set, viewport, palette, smooth=True)
+
+image.show()
