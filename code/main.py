@@ -1,3 +1,4 @@
+from PIL.ImageColor import getrgb
 from scipy.interpolate import interp1d
 from mandelbrot import MandelbrotSet
 from dataclasses import dataclass
@@ -427,5 +428,29 @@ palette[127]
 
 mandelbrot_set = MandelbrotSet(max_iterations=20, escape_radius=1000)
 paint(mandelbrot_set, viewport, palette, smooth=True)
+
+image.show()
+
+
+def hsb(hue_degrees: int, saturation: float, brightness: float):
+    return getrgb(
+        f"hsv({hue_degrees % 360},"
+        f"{saturation * 100}%,"
+        f"{brightness * 100}%)"
+    )
+
+
+hsb(360, 0.75, 1)
+
+
+mandelbrot_set = MandelbrotSet(max_iterations=20, escape_radius=1000)
+
+for pixel in Viewport(image, center=-0.75, width=3.5):
+    stability = mandelbrot_set.stability(complex(pixel), smooth=True)
+    pixel.color = (0, 0, 0) if stability == 1 else hsb(
+        hue_degrees=int(stability * 360),
+        saturation=stability,
+        brightness=1
+    )
 
 image.show()

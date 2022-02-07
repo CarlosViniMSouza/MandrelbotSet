@@ -1094,3 +1094,83 @@ Isso produzirá um efeito de néon brilhante:
 </p>
 
 Continue aumentando o número de iterações até ficar satisfeito com a quantidade de suavização e o número de detalhes na imagem. No entanto, confira o que vem a seguir para obter os melhores resultados e a maneira mais intuitiva de manipular as cores.
+
+## Modelo de cor
+
+Até agora, você trabalhou no domínio dos componentes vermelho, verde e azul (RGB), o que não é a maneira mais natural de pensar em cores. Felizmente, existem modelos de cores alternativos que permitem expressar o mesmo conceito. Um deles é o [modelo de cores](https://en.wikipedia.org/wiki/Color_model) Hue, Saturation, Brightness (HSB), também conhecido como Hue, Saturation, Value (HSV).
+
+> **Nota**: Não confunda HSB ou HSV com outro modelo de cor: Hue, Saturation, Lightness (HSL).
+
+Assim como o RGB, o modelo HSB também possui três componentes, mas são diferentes dos canais vermelho, verde e azul. Você pode imaginar uma cor RGB como um ponto dentro de um cubo tridimensional. No entanto, o mesmo ponto tem [coordenadas cilíndricas](https://en.wikipedia.org/wiki/Cylindrical_coordinate_system) em HSB:
+
+![cylindrical_coord](https://files.realpython.com/media/hsb_256.67b909e67a4e.png)
+
+<p align="center">
+  Hue Saturation Brightness Cylinder
+<p>
+
+As três coordenadas HSB são:
+
+  ° **Matiz**: O ângulo medido no sentido anti-horário entre 0° e 360°
+  ° **Saturação**: O raio do cilindro entre 0% e 100%
+  ° **Brilho**: A altura do cilindro entre 0% e 100%
+
+Para usar essas coordenadas no Pillow, você deve traduzi-las para uma tupla de valores RGB no intervalo familiar de 0 a 255:
+
+```python
+from PIL.ImageColor import getrgb
+
+def hsb(hue_degrees: int, saturation: float, brightness: float):
+    return getrgb(
+        f"hsv({hue_degrees % 360},"
+        f"{saturation * 100}%,"
+        f"{brightness * 100}%)"
+)
+
+hsb(360, 0.75, 1)
+# Output: (255, 64, 64)
+```
+
+O Pillow já fornece a função auxiliar `getrgb()` à qual você pode delegar, mas espera uma string especialmente formatada com as coordenadas HSB codificadas. Por outro lado, sua função wrapper recebe `matiz` em graus e `saturação` e `brilho` como valores de ponto flutuante normalizados. Isso torna sua função compatível com valores de estabilidade entre zero e um.
+
+Existem algumas maneiras de associar estabilidade a uma cor HSB. Por exemplo, você pode usar todo o espectro de cores dimensionando a estabilidade para 360° graus, usar a estabilidade para modular a saturação e definir o brilho para 100%, que é indicado por 1 abaixo:
+
+```python
+mandelbrot_set = MandelbrotSet(max_iterations=20, escape_radius=1000)
+
+for pixel in Viewport(image, center=-0.75, width=3.5):
+    stability = mandelbrot_set.stability(complex(pixel), smooth=True)
+    pixel.color = (0, 0, 0) if stability == 1 else hsb(
+        hue_degrees=int(stability * 360),
+        saturation=stability,
+        brightness=1
+    )
+
+image.show()
+```
+
+Para pintar o interior de preto, você verifica se a estabilidade de um pixel é exatamente um e define todos os três canais de cores para zero. Para valores de estabilidade inferiores a um, o exterior terá uma saturação que desaparece com a distância do fractal e uma tonalidade que segue a dimensão angular do cilindro HSB:
+
+![fractal_num12](https://files.realpython.com/media/hsb.c837a5d610c1.png)
+
+<p align="center">
+  The Mandelbrot Set Visualized Using the HSB Color Model
+</p>
+
+O ângulo aumenta à medida que você se aproxima do fractal, mudando as cores de amarelo para verde, ciano, azul e magenta. Você não pode ver a cor vermelha porque o interior do fractal é sempre pintado de preto, enquanto a parte mais distante do exterior tem pouca saturação. Observe que girar o cilindro em 120° permite localizar cada uma das três cores primárias (vermelho, verde e azul) em sua base.
+
+Não hesite em experimentar o cálculo das coordenadas HSB de diferentes maneiras e veja o que acontece!
+
+# Conclusão
+
+Agora você sabe como usar Python para traçar e desenhar o famoso fractal descoberto por Benoît Mandelbrot. Você aprendeu várias maneiras de visualizá-lo com cores, bem como em escala de cinza e preto e branco. Você também viu um exemplo prático que ilustra como números complexos podem ajudar a expressar elegantemente uma fórmula matemática em Python.
+
+**Neste tutorial, você aprendeu como**:
+
+  ° Aplicar **números complexos** a um problema prático
+  
+  ° Encontre membros dos conjuntos **Mandelbrot** e **Julia**
+  
+  ° Desenhe esses conjuntos como **fractais** usando **Matplotlib** e **Pillow**
+  
+  ° Faça uma representação artística **colorida** dos fractais
