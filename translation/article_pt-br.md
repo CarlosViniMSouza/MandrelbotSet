@@ -916,3 +916,70 @@ Para usar mais cores, você precisará primeiro criar sua imagem no **modo RGB**
 ```python
 image = Image.new(mode="RGB", size=(width, height))
 ```
+
+A partir de agora, o Pillow representará cada pixel como uma [tupla](https://realpython.com/python-lists-tuples/) composta pelos **canais de cores** vermelho, verde e azul (RGB). Cada uma das cores primárias pode receber inteiros entre 0 e 255, chegando a impressionantes 16,7 milhões de cores únicas. No entanto, suas paletas de cores normalmente conterão _muito_ menos do que isso, na vizinhança do número de iterações.
+
+> **Nota**: o número de cores em sua paleta não precisa necessariamente ser igual ao número máximo de iterações. Afinal, não se sabe quantos valores de estabilidade existirão até você executar a fórmula recursiva. Quando você habilita a suavização, o número de contagens de escape fracionárias pode ser maior que o número de iterações!
+
+Se você quiser testar algumas paletas diferentes, pode ser conveniente introduzir uma função auxiliar para evitar redigitar os mesmos comandos repetidamente:
+
+```python
+from PIL import Image
+from mandelbrot import MandelbrotSet
+from viewport import Viewport
+
+def paint(mandelbrot_set, viewport, palette, smooth):
+    for pixel in viewport:
+        stability = mandelbrot_set.stability(complex(pixel), smooth)
+        index = int(min(stability * len(palette), len(palette) - 1))
+        pixel.color = palette[index % len(palette)]
+```
+
+A função usa uma instância de `MandelbrotSet` como um argumento seguido por Viewport, uma paleta de cores e um sinalizador de suavização. A paleta de cores deve ser uma lista de tuplas com os valores de canal vermelho, verde e azul que o Pillow espera. Observe que uma vez que você calcula uma estabilidade de ponto flutuante para o pixel em mãos, você deve dimensioná-lo e prendê-lo antes de usá-lo como um índice inteiro na paleta.
+
+O Pillow só entende inteiros no intervalo de 0 a 255 para os canais de cores. No entanto, trabalhar com valores fracionários **normalizados** entre 0 e 1 geralmente evita sobrecarregar seu cérebro. Você pode definir outra função que reverterá o processo de normalização para deixar a biblioteca Pillow feliz:
+
+```python
+def denormalize(palette):
+    return [
+        tuple(int(channel * 255) for channel in color)
+        for color in palette
+    ]
+```
+
+Esta função dimensiona valores de cor fracionários para inteiros. Por exemplo, ele converterá uma tupla com números como (0,13, 0,08, 0,21) em outra tupla composta pelas seguintes intensidades de canal: (45, 20, 53).
+
+Coincidentemente, a biblioteca Matplotlib inclui [vários mapas de cores](https://matplotlib.org/stable/gallery/color/colormap_reference.html) com esses canais de cores normalizados. Alguns mapas de cores são listas fixas de cores, enquanto outros são capazes de interpolar valores dados como parâmetro. Você pode aplicar um deles à sua visualização do conjunto Mandelbrot agora mesmo:
+
+```python
+importar matplotlib.cm
+mapa de cores = matplotlib.cm.get_cmap("twillight").colors
+paleta = denormalize(mapa de cores)
+
+len(mapa de cores)
+# Output: 510
+
+mapa de cores[0]
+# Output: [0,8857501584075443, 0,8500092494306783, 0,8879736506427196]
+
+paleta[0]
+# Output: (225, 216, 226)
+```
+
+O mapa de cores do `crepúsculo` é uma lista de 510 cores. Depois de chamar `denormalize()` nele, você obterá uma paleta de cores adequada para sua função de pintura. Antes de invocá-lo, você precisa definir mais algumas variáveis:
+
+```python
+mandelbrot_set = MandelbrotSet(max_iterations=512, escape_radius=1000)
+imagem = Image.new(mode="RGB", size=(512, 512))
+viewport = Viewport(imagem, centro=-0,7435 + 0,1314j, largura=0,002)
+paint(mandelbrot_set, viewport, palette, smooth=True)
+imagem.show()
+```
+
+Isso produzirá a mesma espiral de antes, mas com uma aparência muito mais atraente:
+
+![fractal_num9](https://files.realpython.com/media/spiral_color.301b4a918c79.png)
+
+<p align="center">
+  A Spiral Visualized Using the Twilight Color Palette
+</p>
