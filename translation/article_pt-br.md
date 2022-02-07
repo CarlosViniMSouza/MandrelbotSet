@@ -905,7 +905,7 @@ Como você já pode desenhar o fractal em tons de cinza, adicionar mais cores n�
 Você precisará fazer alguns ajustes no código de desenho da seção anterior antes de prosseguir. Especificamente,
 você mudará para um modo de cores mais rico e definirá algumas funções auxiliares reutilizáveis ​​para facilitar sua vida.
 
-## palette de cores
+## Paleta de cores
 
 Os artistas misturam tintas em um quadro físico chamado palette desde os tempos antigos. Na computação, uma [palette de cores](https://en.wikipedia.org/wiki/Palette_(computing)) representa uma **tabela de pesquisa de cores**, que é uma forma de compactação sem perdas. Ele reduz o consumo de memória de uma imagem indexando cada cor individual uma vez e, em seguida, referenciando-a em todos os pixels associados.
 
@@ -1021,3 +1021,39 @@ Ao chamar `paint()` e mostrar a imagem novamente, você verá um limite claro do
 </p>
 
 A transição contínua do branco para o preto e, em seguida, um salto repentino para o branco puro cria um efeito de relevo sombrio que realça as bordas do fractal. Sua paleta de cores combina algumas cores fixas com uma progressão de cores suave conhecida como **gradiente de cores**, que você explorará a seguir.
+
+## Gradiente de cor
+
+Você pode pensar em um gradiente como uma paleta de cores contínua. O tipo mais comum de [gradiente de cores](https://en.wikipedia.org/wiki/Color_gradient) é o **gradiente linear**, que usa interpolação linear para encontrar o valor mais próximo entre duas ou mais cores. Você acabou de ver um exemplo de um gradiente de cores quando misturou preto e branco para projetar uma sombra.
+
+Agora, você pode calcular a matemática para cada gradiente que pretende usar ou construir uma fábrica de gradiente universal. Além disso, se você deseja distribuir suas cores de maneira não linear, o [SciPy](https://realpython.com/python-scipy-cluster-optimize/) é seu amigo. A biblioteca vem com métodos de interpolação linear, quadrática e cúbica, entre alguns outros. Veja como você pode aproveitá-lo:
+
+```python
+import numpy as np
+from scipy.interpolate import interp1d
+
+def make_gradient(colors, interpolation="linear"):
+    X = [i / (len(colors) - 1) for i in range(len(colors))]
+    Y = [[color[i] for color in colors] for i in range(3)]
+    channels = [interp1d(X, y, kind=interpolation) for y in Y]
+    return lambda x: [np.clip(channel(x), 0, 1) for channel in channels]
+```
+
+Sua nova função de fábrica aceita uma lista de cores definidas como trigêmeos de valores de ponto flutuante e uma string opcional com o nome do algoritmo de interpolação exposto pelo SciPy. A variável X maiúscula contém valores normalizados entre zero e um com base no número de cores. A variável Y maiúscula contém três sequências de R, G, e valores B para cada cor, e a variável de `canais` possui as funções de interpolação para cada canal.
+
+Ao chamar `make_gradient()` em algumas cores, você obterá uma nova função que permitirá interpolar valores intermediários:
+
+```python
+black = (0, 0, 0)
+blue = (0, 0, 1)
+maroon = (0.5, 0, 0)
+navy = (0, 0, 0.5)
+red = (1, 0, 0)
+
+colors = [black, navy, blue, maroon, red, black]
+gradient = make_gradient(colors, interpolation="cubic")
+
+gradient(0.42)
+
+# Output: [0.026749999999999954, 0.0, 0.9435000000000001]
+```

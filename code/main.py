@@ -1,3 +1,4 @@
+from scipy.interpolate import interp1d
 import matplotlib.cm
 from viewport import Viewport
 from math import log
@@ -402,3 +403,23 @@ viewport = Viewport(image, center=-0.75, width=3.5)
 paint(mandelbrot_set, viewport, palette, smooth=True)
 
 image.show()
+
+
+def make_gradient(colors, interpolation="linear"):
+    X = [i / (len(colors) - 1) for i in range(len(colors))]
+    Y = [[color[i] for color in colors] for i in range(3)]
+    channels = [interp1d(X, y, kind=interpolation) for y in Y]
+    return lambda x: [np.clip(channel(x), 0, 1) for channel in channels]
+
+
+black = (0, 0, 0)
+blue = (0, 0, 1)
+maroon = (0.5, 0, 0)
+navy = (0, 0, 0.5)
+red = (1, 0, 0)
+
+colors = [black, navy, blue, maroon, red, black]
+gradient = make_gradient(colors, interpolation="cubic")
+
+gradient(0.42)
+# Output: [0.026749999999999954, 0.0, 0.9435000000000001]

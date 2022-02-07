@@ -1,4 +1,4 @@
 git add -A
-git commit -m "Sub-Topic: Color Palette (Part2) -> add | Next Topic: Color Gradient"
+git commit -m "Sub-Topic: Color Gradient (Part1) -> add"
 git push
 git status
