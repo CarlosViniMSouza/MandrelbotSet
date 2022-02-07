@@ -1,4 +1,4 @@
 git add -A
-git commit -m "Sub-Topic: Color Model -> add | Topic: Conclusion -> add"
+git commit -m "Problems: fixed (Round1)"
 git push
 git status

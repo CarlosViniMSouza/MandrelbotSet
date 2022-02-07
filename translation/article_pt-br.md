@@ -65,7 +65,7 @@ def z(n, c):
         return z(n - 1, c) ** 2 + c
 ```
 
-Sua função z() retorna o enésimo elemento da sequência, e é por isso que ela espera o índice de um elemento, _n_, como o primeiro argumento. O segundo argumento, _c_, é um número fixo que você está testando. Essa função continuaria chamando a si mesma infinitamente devido à recursão. No entanto, para quebrar essa cadeia de chamadas **recursivas**,
+Sua função `z()` retorna o enésimo elemento da sequência, e é por isso que ela espera o índice de um elemento, _n_, como o primeiro argumento. O segundo argumento, _c_, é um número fixo que você está testando. Essa função continuaria chamando a si mesma infinitamente devido à recursão. No entanto, para quebrar essa cadeia de chamadas **recursivas**,
 uma condição verifica o caso base com uma solução imediatamente conhecida — zero.
 
 Tente usar sua nova função para encontrar os dez primeiros elementos da sequência para _c_ = 1 e veja o que acontece:
@@ -683,7 +683,7 @@ class MandelbrotSet:
 
 Depois de importar a função `log()` do módulo [math](https://realpython.com/python-math-module/), você adiciona um sinalizador booleano opcional que controla a suavização de seus métodos. Quando você ativa a suavização, a magia matemática entra em ação combinando o número de iterações com informações espaciais para o número divergente, expelindo um número de ponto flutuante.
 
-> Nota: A fórmula matemática acima é baseada na suposição de que o raio de escape se aproxima do infinito, então não pode mais ser codificado. É por isso que sua classe agora define um campo opcional `escape_radius` com um valor padrão de dois, que você poderá substituir à vontade ao criar novas instâncias do `MandelbrotSet`.
+> **Nota**: A fórmula matemática acima é baseada na suposição de que o raio de escape se aproxima do infinito, então não pode mais ser codificado. É por isso que sua classe agora define um campo opcional `escape_radius` com um valor padrão de dois, que você poderá substituir à vontade ao criar novas instâncias do `MandelbrotSet`.
 
 Observe que, devido aos logaritmos em sua fórmula para a contagem de escape suavizada, a estabilidade associada pode ultrapassar ou até se tornar negativa! Aqui está um exemplo rápido que demonstra isso:
 
@@ -1112,7 +1112,9 @@ Assim como o RGB, o modelo HSB também possui três componentes, mas são difere
 As três coordenadas HSB são:
 
   ° **Matiz**: O ângulo medido no sentido anti-horário entre 0° e 360°
+
   ° **Saturação**: O raio do cilindro entre 0% e 100%
+  
   ° **Brilho**: A altura do cilindro entre 0% e 100%
 
 Para usar essas coordenadas no Pillow, você deve traduzi-las para uma tupla de valores RGB no intervalo familiar de 0 a 255:
