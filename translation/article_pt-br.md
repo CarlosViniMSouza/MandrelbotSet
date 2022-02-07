@@ -986,3 +986,38 @@ Isso produzirá a mesma espiral de antes, mas com uma aparência muito mais atra
 <p align="center">
   A Spiral Visualized Using the Twilight Color Palette
 </p>
+
+
+Sinta-se à vontade para experimentar outras paletas de cores incluídas no Matplotlib ou uma das bibliotecas de terceiros mencionadas na documentação. Além disso, o Matplotlib permite inverter a ordem das cores anexando o sufixo _r ao nome de um mapa de cores. Você também pode criar uma paleta de cores do zero, conforme mostrado abaixo.
+
+Suponha que você queira enfatizar a **borda do fractal**. Nesse caso, você pode dividir o fractal em três partes e atribuir cores diferentes a cada uma:
+
+```python
+exterior = [(1, 1, 1)] * 50
+interior = [(1, 1, 1)] * 5
+gray_area = [(1 - i / 44,) * 3 for i in range(45)]
+palette = denormalize(exterior + gray_area + interior)
+```
+
+Escolher um número redondo para sua paleta, como 100 cores, simplificará as fórmulas. Em seguida, você pode dividir as cores para que 50% vá para o **exterior**, 5% para o **interior** e os 45% restantes para a **área cinza** no meio. Você quer que o exterior e o interior permaneçam brancos, definindo seus canais RGB para totalmente saturados. No entanto, o meio-termo deve gradualmente desaparecer de branco para preto.
+
+Não se esqueça de definir o ponto central da janela de visualização em -0,75 e sua largura em 3,5 unidades para cobrir todo o fractal. Nesse nível de zoom, você também precisará diminuir o número de iterações:
+
+```python
+mandelbrot_set = MandelbrotSet(max_iterations=20, escape_radius=1000)
+viewport = Viewport(image, center=-0.75, width=3.5)
+
+paint(mandelbrot_set, viewport, palette, smooth=True)
+
+image.show()
+```
+
+Ao chamar `paint()` e mostrar a imagem novamente, você verá um limite claro do conjunto de Mandelbrot: 
+
+![fractal_num10](https://files.realpython.com/media/edge.cbc8e09d80af.png)
+
+<p align="center">
+  A Custom Color Palette To Bring Out The Edge Of The Fractal
+</p>
+
+A transição contínua do branco para o preto e, em seguida, um salto repentino para o branco puro cria um efeito de relevo sombrio que realça as bordas do fractal. Sua paleta de cores combina algumas cores fixas com uma progressão de cores suave conhecida como **gradiente de cores**, que você explorará a seguir.
