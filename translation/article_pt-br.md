@@ -1057,3 +1057,21 @@ gradient(0.42)
 
 # Output: [0.026749999999999954, 0.0, 0.9435000000000001]
 ```
+
+Observe que as cores de gradiente, como o preto no exemplo acima, podem se repetir e aparecer em qualquer ordem. Para conectar o gradiente à sua função de pintura com reconhecimento de paleta, você deve decidir o número de cores na paleta correspondente e converter a **função gradiente** em uma lista de tuplas desnormalizadas de tamanho fixo:
+
+```python
+num_colors = 256
+
+palette = denormalize([
+    gradient(i / num_colors) for i in range(num_colors)
+])
+
+len(palette)
+# Output: 256
+
+palette[127]
+# Output: (46, 0, 143)
+```
+
+Você pode se sentir tentado a usar a função gradiente diretamente em relação a um valor de estabilidade. Infelizmente, isso seria computacionalmente muito caro, levando sua paciência ao limite. Você deseja calcular a interpolação antecipadamente para todas as cores conhecidas em vez de para cada pixel.

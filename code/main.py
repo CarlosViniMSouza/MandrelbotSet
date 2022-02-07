@@ -423,3 +423,16 @@ gradient = make_gradient(colors, interpolation="cubic")
 
 gradient(0.42)
 # Output: [0.026749999999999954, 0.0, 0.9435000000000001]
+
+
+num_colors = 256
+
+palette = denormalize([
+    gradient(i / num_colors) for i in range(num_colors)
+])
+
+len(palette)
+# Output: 256
+
+palette[127]
+# Output: (46, 0, 143)
