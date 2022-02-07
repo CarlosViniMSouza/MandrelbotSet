@@ -1075,3 +1075,22 @@ palette[127]
 ```
 
 Você pode se sentir tentado a usar a função gradiente diretamente em relação a um valor de estabilidade. Infelizmente, isso seria computacionalmente muito caro, levando sua paciência ao limite. Você deseja calcular a interpolação antecipadamente para todas as cores conhecidas em vez de para cada pixel.
+
+Finalmente, depois de construir a fábrica de gradientes, criar uma função de gradiente e desnormalizar as cores, você pode pintar o conjunto Mandelbrot com sua paleta de gradientes:
+
+```python
+mandelbrot_set = MandelbrotSet(max_iterations=20, escape_radius=1000)
+paint(mandelbrot_set, viewport, palette, smooth=True)
+
+image.show()
+```
+
+Isso produzirá um efeito de néon brilhante:
+
+![fractal_num11](https://files.realpython.com/media/neon.2c3107295c68.png)
+
+<p align="center">
+  The Mandelbrot Set Visualized With a Color Gradient
+</p>
+
+Continue aumentando o número de iterações até ficar satisfeito com a quantidade de suavização e o número de detalhes na imagem. No entanto, confira o que vem a seguir para obter os melhores resultados e a maneira mais intuitiva de manipular as cores.

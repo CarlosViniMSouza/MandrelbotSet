@@ -1,11 +1,12 @@
 from scipy.interpolate import interp1d
-import matplotlib.cm
-from viewport import Viewport
-from math import log
 from mandelbrot import MandelbrotSet
 from dataclasses import dataclass
+from viewport import Viewport
 from PIL import Image
+from math import log
+
 import matplotlib.pyplot as plt
+import matplotlib.cm
 import numpy as np
 
 
@@ -181,22 +182,16 @@ class MandelbrotSet:
 mandelbrot_set = MandelbrotSet(max_iterations=30)
 
 mandelbrot_set.escape_count(0.25)
-# Output: 30
 
 mandelbrot_set.stability(0.25)
-# Output: 1.0
 
 0.25 in mandelbrot_set
-# Output: True
 
 mandelbrot_set.escape_count(0.26)
-# Output: 29
 
 mandelbrot_set.stability(0.26)
-# Output: 0.9666666666666667
 
 0.26 in mandelbrot_set
-# Output: False
 
 
 mandelbrot_set = MandelbrotSet(max_iterations=20)
@@ -239,9 +234,7 @@ class MandelbrotSet:
 
 mandelbrot_set = MandelbrotSet(max_iterations=30)
 
-
 mandelbrot_set.stability(-1.2039 - 0.1996j, smooth=True)
-
 
 mandelbrot_set.stability(42, smooth=True)
 
@@ -373,13 +366,10 @@ colormaps = matplotlib.cm.get_cmap("twillight").colors
 palette = denormalize(colormaps)
 
 len(colormaps)
-# Output: 510
 
 colormaps[0]
-# Output: [0,8857501584075443, 0,8500092494306783, 0,8879736506427196]
 
 palette[0]
-# Output: (225, 216, 226)
 
 
 mandelbrot_set = MandelbrotSet(max_iterations=512, escape_radius=1000)
@@ -422,7 +412,6 @@ colors = [black, navy, blue, maroon, red, black]
 gradient = make_gradient(colors, interpolation="cubic")
 
 gradient(0.42)
-# Output: [0.026749999999999954, 0.0, 0.9435000000000001]
 
 
 num_colors = 256
@@ -432,7 +421,11 @@ palette = denormalize([
 ])
 
 len(palette)
-# Output: 256
 
 palette[127]
-# Output: (46, 0, 143)
+
+
+mandelbrot_set = MandelbrotSet(max_iterations=20, escape_radius=1000)
+paint(mandelbrot_set, viewport, palette, smooth=True)
+
+image.show()
